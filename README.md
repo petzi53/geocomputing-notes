@@ -4,12 +4,13 @@
 # Statistics With R
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 This Quarto book collects my personal notes, trials and exercises of
-[Statistics With R: Solving Problems Using Real-World
-Data](https://uk.sagepub.com/en-gb/eur/statistics-with-r/book253567) by
-Jenine K. Harris.
+[Geocomputation With R: 2nd
+edition](https://www.amazon.com/Geocomputation-Chapman-Hall-Robin-Lovelace/dp/1032248882/)
+by Robin Lovelace, Jakub Nowosad, and Jannes Muenchow.
 
 WATCH OUT: This is my personal learning material and is therefore
 neither an accurate replication nor an authoritative textbook.
