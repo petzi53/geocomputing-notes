@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Statistics With R
+# Geocomputation With R (2nd ed)
 
 <!-- badges: start -->
 
