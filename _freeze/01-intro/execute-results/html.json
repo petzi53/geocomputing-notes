@@ -1,0 +1,15 @@
+{
+  "hash": "5b90565f8a89b77b88d4e43a9236b072",
+  "result": {
+    "engine": "knitr",
+    "markdown": "# Introduction {#sec-chap01}\n\nIn contrast to commonly used term 'quantitative geography' it has\nemphasis of creative, experimental and new tools/applications and a\nspecial focus on reproducibility.\n\n::: {#imp-01-def-geocomputation .callout-important}\n###### Defintion of Geomcomputation\n\nAcademic research, software development and practical applications that\nuse geographic data to solve problems, with a focus on reproducibility,\nflexibility and tool development.\n:::\n\n> Geocomputation implies working with geographic data in a reproducible\n> code-driven environment and programming new results, methods and\n> tools, which is what this book is all about.\n\nBut \"we do not seek to imply that there is any cohesive academic field\ncalled ‘Geocomputation’\".\n\nIn contrast to the {**tidyverse**} meta-package there is no equivalent\n‘geoverse’, but the modern R-spatial ecosystem has consolidated around\n{**sf**}[^01-intro-1], and {**terra**}.\n\n[^01-intro-1]: As of 2023-11-14 , there are 526 packages which import\n    sf*.*\n\n\n:::::{.my-r-code}\n:::{.my-r-code-header}\n:::::: {#cnj-ID-text}\n: Numbered R Code Title\n::::::\n:::\n::::{.my-r-code-container}\n\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\n1 + 1\n```\n\n::: {.cell-output .cell-output-stdout}\n\n```\n#> [1] 2\n```\n\n\n:::\n:::\n\n\n\n\n\n::::\n:::::\n\n\n:::::{.my-r-code}\n:::{.my-r-code-header}\n:::::: {#cnj-ID-text}\n: Numbered R Code Title\n::::::\n:::\n::::{.my-r-code-container}\n\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\n1 + 1\n```\n\n::: {.cell-output .cell-output-stdout}\n\n```\n#> [1] 2\n```\n\n\n:::\n:::\n\n\n\n\n\n::::\n:::::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

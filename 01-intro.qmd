@@ -1,9 +1,28 @@
-# Introdcution {#sec-chap01}
+# Introduction {#sec-chap01}
 
+In contrast to commonly used term 'quantitative geography' it has
+emphasis of creative, experimental and new tools/applications and a
+special focus on reproducibility.
 
-```{r}
-#| label: setup
-#| include: false
+::: {#imp-01-def-geocomputation .callout-important}
+###### Defintion of Geomcomputation
 
-base::source(file = "R/helper.R")
-```
+Academic research, software development and practical applications that
+use geographic data to solve problems, with a focus on reproducibility,
+flexibility and tool development.
+:::
+
+> Geocomputation implies working with geographic data in a reproducible
+> code-driven environment and programming new results, methods and
+> tools, which is what this book is all about.
+
+But "we do not seek to imply that there is any cohesive academic field
+called ‘Geocomputation’".
+
+In contrast to the {**tidyverse**} meta-package there is no equivalent
+‘geoverse’, but the modern R-spatial ecosystem has consolidated around
+{**sf**}[^01-intro-1], and {**terra**}.
+
+[^01-intro-1]: As of 2023-11-14 , there are 526 packages which import
+    sf*.*
+

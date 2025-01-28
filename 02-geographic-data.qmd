@@ -1,0 +1,748 @@
+# Geographic Data in R {#sec-chap02}
+
+```{r}
+#| label: setup
+#| include: false
+
+# base::source(file = "R/helper.R")
+
+
+
+```
+
+## Introduction
+
+This chapter will provide explanations of the fundamental geographic
+data models: vector and raster.
+
+-   **Vector**: The vector data model represents the world using points,
+    lines and polygons. These have discrete, well-defined borders.
+    Vector data tends to dominate the social sciences because human
+    settlements tend to have discrete borders.
+-   **Raster**: The raster data model divides the surface up into cells
+    of constant size. Raster datasets are the basis of background images
+    used in web mapping. Raster dominates many environmental sciences
+    partially because of the reliance on remote sensing data.
+
+## Vector Data
+
+The geographic vector data model is based on points located within a
+coordinate reference system (`r glossary("CRS")`). Points can represent
+self-standing features (e.g., the location of a bus stop) or they can be
+linked together to form more complex geometries such as lines and
+polygons.
+
+The {**sf**} package provides classes for geographic vector data and a
+consistent command line interface to important low-level libraries for
+geocomputation:
+
+- `r glossary("GDAL")`, for reading, writing and manipulating a wide range
+of geographic data formats, covered in [@XXXChapter8]. See: [GDAL](https://gdal.org/en/stable/) [@rouault-2025]. 
+- `r glossary("PROJ")`, a powerful library for coordinate system transformations, which
+underlies the content covered in [@XXXChapter7]. See: [PROJ](https://proj.org/en/stable/) [@evenden-2024]. 
+- `r glossary("GEOS")`, a planar geometry
+engine for operations such as calculating buffers and centroids on data
+with a projected `r glossary("CRS")`, covered in [@XXXChapter5]. See [GEOS](https://libgeos.org/) [@geoscontributors-2024]. 
+- `r glossary("S2")`, a spherical geometry
+engine written in C++ developed by Google, via the {**s2**} package, covered
+in @XXXSection2-2-9 and in @XXXChapter7. See: [S2](http://s2geometry.io/) [@s2-geometry-contributors-2025].
+
+
+Information about these interfaces is printed by {**sf**} the first time the package is loaded. The message tells us the versions of linked GEOS, GDAL and PROJ libraries (these vary between computers and over time) and whether or not the S2 interface is turned on. --- Since {**sf**} version 1.0.0, launched in June 2021, [s2 functionality is now used by default](https://r-spatial.org/r/2020/06/17/s2.html) on geometries with geographic (longitude/latitude) coordinate systems.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sf-loaded-interfaces}
+: Print message about interfaces by loading {**sf**}
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sf-loaded-interfaces
+#| results: hold
+
+base::library(sf) # attach package
+
+base::detach("package:sf", unload=TRUE) ## return previous status
+```
+
+::::
+:::::
+
+A neat feature of {**sf**} is that you can change the default geometry engine used on unprojected data: ‘switching off’ S2 can be done with the command `sf::sf_use_s2(FALSE)`, meaning that the planar geometry engine GEOS will be used by default for all geometry operations, including geometry operations on unprojected data.
+
+### Introduction to Simple Features
+
+`r glossary("Simple features")` is a hierarchical data model that represents a wide range of geometry types. Of 18 geometry types supported by the specification, only seven are used in the vast majority of geographic research (see @fig-02-sf-classes); these core geometry types are fully supported by the R package {**sf**}.
+
+***
+
+![Simple feature types fully supported by {sf}.](img/02-sf-classes.png){#fig-02-sf-classes 
+fig-alt="The picture shows a square surrounded by six other squares. Three of the squares contain a geometric object titled POINT, LINESTRING, and POLYGON. Three other squares contain two identical geometric objects titles MULTIOPOINT, MULTILINESTRING, AND MULTIPOLYGON. All these six squares have a connection to the centered square called GEOMETRYCOLLECTION containing all the different objects of the six peripheral squares." fig-align="center" 
+width="70%"}
+
+***
+
+{**sf**} provides the same functionality (and more) previously provided in three (now deprecated) packages: 
+
+- {**sp**} for data classes
+- {**rgdal**} for data read/write via an interface to GDAL and PROJ and 
+- {**rgeos**} for spatial operations via an interface to GEOS.
+
+::: {.callout-note #nte-02-dprecated-packages}
+###### Deprecated packages & the history of the R-spatial ecosystem
+
+This detailed infos (together with the history of the R-spatial ecosystem provided in Chapter 1 of the book) I would have needed earlier. When I started to learn spatial data science (one month ago, December 2024) I was confused about the many different packages with similar functionality.
+:::
+
+sf’s functionality is well documented on its website at [r-spatial.github.io/sf/](r-spatial.github.io/sf/) which contains seven vignettes. 
+
+::: {.callout-important #imp-02-sf-definition}
+###### Simple feature objects 
+
+Simple feature objects in R are stored in a data frame, with geographic data occupying a special column, usually named ‘geom’ or ‘geometry’. Simple features are, in essence, data frames with a spatial extension.
+:::
+
+
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-02-inspect-sf-classes}
+: Inspect {**sf**} classes, plotting, summary, and subsetting
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Inspect data
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-inspect-sf-world-data}
+: Inspect class and column names of `world`
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: inspect-sf-world-data
+#| results: hold
+
+utils::data("world", package = "spData")
+base::class(world)
+base::names(world)
+```
+
+***
+
+The contents of the `geom` column give {**sf**} objects their spatial powers: `world$geom` is a ‘list column’ that contains all the coordinates of the country polygons.
+
+
+::::
+:::::
+
+
+###### Plot data
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-plot-sf-world-data}
+: Plot `world` data
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-02-plot-sf-world-data
+#| fig-cap: "Map of the world using the {**sf**} package, with a facet for each attribute."
+#| results: hold
+
+sf:::plot.sf(world) # plot produces only the first 9 attributes (1)
+sf:::plot.sf(world, max.plot = 10) # 11 cols but 'geom' does not count as attribute (2)
+sf:::plot.sf(world, max.plot = Inf) # plot all availabe attributes (3)
+```
+
+***
+
+Instead of creating a single map by default for geographic objects, as most GIS programs do, `plot()`ing `sf` objects results in a map for each variable in the datasets. This behavior can be useful for exploring the spatial distribution of different variables.
+
+If you attach the {**sf**} package with `library(sf)` then `plot(world)` would have worked. But it is not the `base::plot()` function as errors in line 2 and 3 would show. `plot()` is a generic function that is extended by other packages. {**sf**} contains the non-exported (hidden from users most of the time and therefore with three columns prefixed) `sf:::plot.sf()` function which is called behind the scenes.
+
+
+::::
+:::::
+
+###### Summary
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sf-summary}
+: Treating sf objects as data frames
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sf-summary
+
+base::summary(world["lifeExp"]) # infos about the 'geom' column 
+
+base::summary(world$lifeExp) # no infos about the 'geom' column
+```
+
+***
+
+Treating geographic objects as regular data frames with spatial powers has many advantages, especially if you are already used to working with data frames. The commonly used `summary()` function, for example, provides a useful overview of the variables within the world object.
+::::
+:::::
+
+###### Subsetting
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sf-subsetting}
+: Subsetting `sf` object with base R and {dplyr}
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sf-subsetting
+
+world[1:2, 1:3] # base R subsetting
+world |> # tidyverse subsetting
+    dplyr::slice(1:2) |>
+    dplyr::select(1:3)
+```
+
+
+***
+
+Subsetting is another example where `sf` objects are treating as normal data frames. The output shows two major differences compared with a regular data.frame: 
+
+- the inclusion of additional geographic metadata (Geometry type, Dimension, Bounding box and coordinate reference system information), and 
+- the presence of a ‘geometry column’, here named "geom".
+
+Base R and tidyverse subsetting yield the same result, but with slightly different formatting of the 'geom' column.
+::::
+:::::
+
+###### Class of 'geom' column
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-geom-class}
+: Class of the 'geom' column and of one entry of the 'geom' column
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: 02-geom-class
+#| results: hold
+
+base::class(world) # class of sf object (sf)
+base::class(world$geom) # class of 'geom' column (sfc)
+base::class(world$geom[[1]]) # class of first entry of 'geom' (sfg)
+```
+
+***
+
+Here you can see the hierarchy of the three object types in the {**sf**} universe. I explain it in reverse order, starting with the lowest level:
+
+- **sfg (Simple Feature Gemometry)** is the lowest unit; it has only coordinates (according to the [well-known text](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry) (`r glossary("WKT")`) standard)
+- **sfc (Simple Feature Gemometry Collection)** is a set of sfg's, plus - crucially! - information about interpretation of the coordinate reference system / are the coordinates in meters, or degrees? plane or sphere? if sphere, which one? this is highly standardized stuff, often described in terms of `r glossary("EPSG")` codes ([EPSG Geodetic Parameter Dataset](https://epsg.org/home.html)).
+- **sf (Simple Feature)** is a sfc geometry with data columns, in addition to the geometry.
+
+::::
+:::::
+
+
+:::
+
+::::
+:::::
+
+### Why simple features?
+
+Simple features is a widely supported data model that underlies data structures in many `r glossary("GISx", "GIS")` applications including [QGIS](https://qgis.org/) and [PostGIS](https://postgis.net/).
+
+There are numerous advantages using the {**sf**} package:
+
+- Fast reading and writing of data
+- Enhanced plotting performance
+- `sf` objects can be treated as data frames in most operations
+- `sf` function names are relatively consistent and intuitive (all begin with `st_`)
+- `sf` functions can be combined with the |> operator and works well with the {**tidyverse**} collection of R packages.
+
+`sf::st_read()` vs. `sf::read_sf()` are good examples to show and compare the support for the {**tidyverse**} pckages. 
+
+-   `sf::st_read()` emits verbose messages and returns the file content
+    stored in a base R `data.frame`.
+-   `sf::read_sf()` silently returns data as a tidyverse `tibble`.
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-compare-df-tib}
+: Compare `sf::st_read()` with `sf::read_sf()`
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: compare-df-tib
+
+world_dfr = sf::st_read(system.file("shapes/world.gpkg", package = "spData"))
+world_tbl = sf::read_sf(system.file("shapes/world.gpkg", package = "spData"))
+base::class(world_dfr) # base data.frame
+base::class(world_tbl) # tidyverse tibble
+```
+
+***
+
+Data files from the {**spData**} package are located in the folder "shapes" inside the {**spData**} package folder.This can be detected manually in the operating systems by
+opening the folder "spData" for the {**spData**} package. To get the
+file path one has to use the `base::system.file()` function with the
+appropriate package name and providing the path to the file inside this
+package: `system.file("shapes/world.gpkg", package = "spData")`.
+
+
+
+::::
+:::::
+
+
+::: {.callout-note #nte-importance-sf}
+###### {**sf**} is now the go-to package for analysis of spatial vector data in R
+ 
+{**spatstat**}, a package ecosystem which provides numerous functions for spatial statistics, and {**terra**} both have vector geographic data classes, but neither has the same level of uptake as {**sf**} does for working with vector data. Many popular packages build on {**sf**}.
+:::
+
+### Basic Maps
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-02-sf-basic-maps}
+: Basic maps created with {sf}
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Multi-panel plot
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sf-multi-panel-plot}
+: Multi-panel plot with {sf}
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-02-sf-multi-panel-plot
+#| fig-cap: "A multi-panel plot with {**sf**} creates one sub-plot for each variable of the object."
+
+sf:::plot.sf(world[3:6])
+```
+
+
+::::
+:::::
+
+
+###### Single plot
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sf-single-plot}
+: Single plot with {sf}
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-02-sf-single-plot
+#| fig-cap: "If the object to be plotted with {sf} has a single variable, then a legend with a continuous color is produced."
+
+sf:::plot.sf(world["pop"])
+```
+
+::::
+:::::
+
+###### Fixed colors
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sf-fixed-color-plot}
+: Plot with {sf} with fixed country and border colors
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-02-sf-fixed-color-plot
+#| fig-cap: "You can set fixed colors in the `sf::plot.sf()` commands with `col` and `border` arguments."
+
+sf:::plot.sf(world["pop"], col = "lightblue", border = "black")
+```
+
+::::
+:::::
+
+
+:::
+
+::::
+:::::
+
+There are various ways to modify maps with {**sf**}’s plot() method. Because {**sf**} extends base R plotting methods, `graphics::plot()`’s arguments work with {**sf**} objects (see `?graphics::plot` and `?par` for information on arguments.)
+
+
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-02-sf-adding-plot-layers}
+: Adding different layers to plot output of `sf` objects
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### filters & combining
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sf-filter-and-combine}
+: Numbered R Code Title
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-02-sf-filter-and-combine
+#| fig-cap: "Plot of Asia added as a layer on top of countries worldwide."
+
+utils::data("world", package = "spData") # get world data
+
+base::library(sf) |> base::suppressPackageStartupMessages() # load {sf}
+
+asia <-  world |> 
+    dplyr::filter(continent == "Asia") |> # (1)
+    sf::st_union()
+
+plot(world["pop"], reset = FALSE)
+plot(asia, add = TRUE, col = "red")
+
+detach("package:sf", unload = TRUE) # return to previous state, unload {sf}
+```
+
+***
+
+Plots are added as layers to existing images by setting `add = TRUE`. Line (1) in the above code chunk filters countries in Asia and combines them in line (2) into a single feature.
+
+We can now plot the Asian continent over a map of the world. Note that the first plot (line (3)) must only have one facet for `add = TRUE` to work. If the first plot has a key (legend), `reset = FALSE` must be used.
+::::
+:::::
+
+
+###### unprojected
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sf-overlay-circles-unprojected}
+: Overlay circles representing country population on a world map (unprojected version)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-02-sf-overlay-circles-unprojected
+#| fig-cap: "Overlaying circles, whose diameters (set with `cex =`) represent country populations, on a map of the world. Unprojected version"
+
+
+
+base::library(sf) |> base::suppressPackageStartupMessages() # load {sf}
+
+plot(world["continent"], reset = FALSE)                    # (1)
+cex = base::sqrt(world$pop) / 10000                        # (2)
+world_cents = sf::st_centroid(world, of_largest = TRUE)    # (3)
+plot(sf::st_geometry(world_cents), add = TRUE, cex = cex)  # (4)
+
+detach("package:sf", unload = TRUE) # return to previous state, unload {sf}
+```
+
+***
+
+The code above uses the function `sf::st_centroid()` to convert one geometry type (polygons) to another (points) (see @XXXChapter5), the aesthetics of which are varied with the `cex` argument.
+
+The `sf::st_centroid()` function (line 3) produced: *'Warning: st_centroid assumes attributes are constant over geometries'*. 
+
+> "The reason for this is that the dataset contains variables with values that are associated with entire polygons … meaning they are not associated with a POINT geometry replacing the polygon." [@pebesma-2023, chapter 5]
+
+
+::::
+:::::
+
+
+###### projected
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sf-overlay-circles-projected}
+: Overlay circles representing country population on a world map (projected version)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-02-sf-overlay-circles-projected
+#| fig-cap: "Overlaying circles, whose diameters (set with `cex =`) represent country populations, on a map of the world. Projected version"
+
+utils::data("world", package = "spData")
+
+base::library(sf) |> base::suppressPackageStartupMessages() # load {sf}
+
+world_proj = sf::st_transform(world, "+proj=eck4")                                   # (1)
+world_cents = sf::st_centroid(world_proj, of_largest_polygon = TRUE)                 # (2)
+graphics::par(mar = c(0, 0, 0, 0))                                                   # (3)
+plot(world_proj["continent"], reset = FALSE, main = "", key.pos = NULL)              # (4)
+g = sf::st_graticule()                                                               # (5)
+g = sf::st_transform(g, crs = "+proj=eck4")                                          # (6)
+plot(g$geometry, add = TRUE, col = "lightgray")                                      # (7)
+cex = base::sqrt(world$pop) / 10000                                                  # (8)
+plot(sf::st_geometry(world_cents), add = TRUE, cex = cex, lwd = 2, graticule = TRUE) # (9)
+
+detach("package:sf", unload = TRUE) # return to previous state, unload {sf}
+```
+
+***
+
+For the above code I used the [script 02-contplot.R](https://github.com/geocompx/geocompr/blob/main/code/02-contpop.R). There are new code lines to change the unprojected to a projected figure that I do not yet understand fully.
+
+::::
+:::::
+
+:::
+
+In all code chunks of this code collection I had to attach {**sf**} because the `sf:plot.sf(`) commands did not work. I received the error message '*Error in if (ncol(x) == 1) { : argument is of length zero*'. After changing the original code of the function to `if (isTRUE(x) && ncol(x) == 1)` I received other errors. Finally I gave up and used the standard `base::library(sf)`. 
+
+::::
+:::::
+
+
+{**sf**}’s plot method also has arguments specific to geographic data. `expandBB`, for example, can be used to plot an `sf` object in context: it takes a numeric vector of length four that expands the bounding box of the plot relative to zero in the following order: bottom, left, top, right. This is used in the following code to plot India in the context of its giant Asian neighbors, with an emphasis on China to the east.
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-02-using-expandBB}
+: Using `expandBB` argument to plot an `sf` object in context
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### no labels
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sf-plot-expandBB-no-labels}
+: Creating context by plotting with the `expandBB` argument (without labels)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-02-sf-plot-expandBB-no-labels
+#| fig-cap: "India in context, demonstrating the `expandBB` argument (without labels)."
+#| results: hold
+
+base::library(sf) |> base::suppressPackageStartupMessages() # load {sf}
+
+india <- world |> 
+    dplyr::filter(name_long == "India")
+world_asia <- world |> 
+    dplyr::filter(continent == "Asia")
+
+plot(sf::st_geometry(india), expandBB = c(-0.2, 0.5, 0, 1), col = "gray", lwd = 3)
+plot(sf::st_geometry(world_asia), add = TRUE)
+
+detach("package:sf", unload = TRUE) # return to previous state, unload {sf}
+```
+
+
+::::
+:::::
+
+
+
+###### with labels
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sf-plot-expandBB-with-labels}
+: Creating context by plotting with the `expandBB` argument (with labels)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-02-sf-plot-expandBB-with-labels
+#| fig-cap: "India in context, demonstrating the `expandBB` argument (with labels)."
+#| results: hold
+#| warning: FALSE
+
+utils::data("world", package = "spData")
+base::library(sf) |> base::suppressPackageStartupMessages() # load {sf}
+
+india <- world |> 
+    dplyr::filter(name_long == "India")
+world_asia <- world |> 
+    dplyr::filter(continent == "Asia")
+indchi  <-  
+    world_asia[grepl("Indi|Chi", world_asia$name_long), ]
+indchi_coords <- 
+    sf::st_centroid(indchi) |> 
+    sf::st_coordinates()
+
+old_par = graphics::par(mar = rep(0, 4))
+
+plot(sf::st_geometry(india), expandBB = c(-0.2, 0.5, 0, 1), col = "gray", lwd = 3)
+plot(world_asia[0], add = TRUE)
+terra::text(indchi_coords[, 1], indchi_coords[, 2], indchi$name_long)
+
+graphics::par(old_par)
+
+detach("package:sf", unload = TRUE) # return to previous state, unload {sf}
+```
+
+
+::::
+:::::
+
+:::
+
+Note the use of `lwd` (linewidth) to emphasize India in the plotting code. See @XXXChapter9-2 for other visualization techniques for representing a range of geometry types, the subject of the next section.
+
+::::
+:::::
+
+### Geometry Types
+
+Generally, well-known binary (`r glossary("WKB")`) or well-known text (`r glossary("WKT")`) are the standard encoding for simple feature geometries. 
+
+- **WKB** representations are usually hexadecimal strings easily readable for computers. This is why GIS and spatial databases use WKB to transfer and store geometry objects. 
+- **WKT**, on the other hand, is a human-readable text markup description of simple features. Both formats are exchangeable.
+
+### The sf class
+
+Simple features consist of two main parts: geometries and non-geographic attributes. @fig-02-sf-diagram shows how an `sf` object is created – geometries come from an `sfc` object, while attributes are taken from a `data.fram`e or `tibble`. 
+
+![Building blocks of `sf` objects](img/02-sfdiagram.png){#fig-02-sf-diagram 
+fig-alt="alt-text" fig-align="center" 
+width="100%"}
+
+More about building sf geometries from scratch see @XXXChapter2-2-6 and @XXXChapter2-2-7.
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-02-sf-builing-blocks}
+: Creation and Class of sf Building Blocks
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Creation
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sf-building-block-creation}
+: Building blocks of `sf` objects
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sf-building-block-creation
+
+(lnd_point = sf::st_point(c(0.1, 51.5))   )              # (1) sfg object
+(lnd_geom = sf::st_sfc(lnd_point, crs = "EPSG:4326"))    # (2) sfc object
+(
+    lnd_attrib = base::data.frame(                       # (3) data.frame object
+      name = "London",
+      temperature = 25,
+      date = base::as.Date("2023-06-21")
+    )
+)
+(lnd_sf = sf::st_sf(lnd_attrib, geometry = lnd_geom))    # (4) sf object
+
+
+
+```
+
+***
+
+- **Line 1**: The coordinates were used to create the simple feature geometry (sfg). 
+- **Line 2**: The geometry was converted into a simple feature geometry column (sfc), with a `r glossary("CRS")`. 
+- **Line 3**: Attributes were stored in a data.frame. 
+- **Line 4**: The data.frame was combined with the sfc object. The results in an sf object.
+
+The result shows that `sf` objects actually have two classes, `sf` and `data.frame`. Simple features are simply data frames (square tables), but with spatial attributes stored in a list column, usually called geometry or geom, as described in @imp-02-sf-definition. This duality is central to the concept of simple features: most of the time a `sf` can be treated as and behaves like a data.frame. **Simple features are, in essence, data frames with a spatial extension.**
+
+::::
+:::::
+
+
+
+###### Classes
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sf-classes}
+: Classes of sf Building Blocks
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sf-classes
+
+base::class(lnd_point)  # sfg
+base::class(lnd_geom)   # sfc
+base::class(lnd_attrib) # data.frame
+base::class(lnd_sf)     # sf
+```
+
+***
+
+Depending of the created geometry type POINT can be replaced by LINESTRING, POLYGON, MUTLIPOINT, MULTILINESTRING, MULTIPOLYGON. It is most often the case that the objects are of identical type. In case of a mix of types or an empty set, POINT (or any of the other mentioned gemoetries) are set to the superclass GEOMETRY.
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+
+@fig-02-building-blocks-sf shows --- as a kind of summary --- the different `sf` objects in their contexts [Picture taken from @sadler-2018]. 
+
+
+![Building Blocks of sf objects](img/02-building-blocks-sf-objects.jpg){#fig-02-building-blocks-sf 
+fig-alt="alt-text" fig-align="center" 
+width="100%"}
+
+
