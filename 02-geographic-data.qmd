@@ -36,27 +36,38 @@ The {**sf**} package provides classes for geographic vector data and a
 consistent command line interface to important low-level libraries for
 geocomputation:
 
-- `r glossary("GDAL")`, for reading, writing and manipulating a wide range
-of geographic data formats, covered in [@XXXChapter8]. See: [GDAL](https://gdal.org/en/stable/) [@rouault-2025]. 
-- `r glossary("PROJ")`, a powerful library for coordinate system transformations, which
-underlies the content covered in [@XXXChapter7]. See: [PROJ](https://proj.org/en/stable/) [@evenden-2024]. 
-- `r glossary("GEOS")`, a planar geometry
-engine for operations such as calculating buffers and centroids on data
-with a projected `r glossary("CRS")`, covered in [@XXXChapter5]. See [GEOS](https://libgeos.org/) [@geoscontributors-2024]. 
-- `r glossary("S2")`, a spherical geometry
-engine written in C++ developed by Google, via the {**s2**} package, covered
-in @XXXSection2-2-9 and in @XXXChapter7. See: [S2](http://s2geometry.io/) [@s2-geometry-contributors-2025].
+-   `r glossary("GDAL")`, for reading, writing and manipulating a wide
+    range of geographic data formats, covered in [@XXXChapter8]. See:
+    [GDAL](https://gdal.org/en/stable/) [@rouault-2025].
+-   `r glossary("PROJ")`, a powerful library for coordinate system
+    transformations, which underlies the content covered in
+    [@XXXChapter7]. See: [PROJ](https://proj.org/en/stable/)
+    [@evenden-2024].
+-   `r glossary("GEOS")`, a planar geometry engine for operations such
+    as calculating buffers and centroids on data with a projected
+    `r glossary("CRS")`, covered in [@XXXChapter5]. See
+    [GEOS](https://libgeos.org/) [@geoscontributors-2024].
+-   `r glossary("S2")`, a spherical geometry engine written in C++
+    developed by Google, via the {**s2**} package, covered in
+    @sec-02-s2 and in @XXXChapter7. See:
+    [S2](http://s2geometry.io/) [@s2-geometry-contributors-2025].
 
+Information about these interfaces is printed by {**sf**} the first time
+the package is loaded. The message tells us the versions of linked GEOS,
+GDAL and PROJ libraries (these vary between computers and over time) and
+whether or not the S2 interface is turned on. --- Since {**sf**} version
+1.0.0, launched in June 2021, [s2 functionality is now used by
+default](https://r-spatial.org/r/2020/06/17/s2.html) on geometries with
+geographic (longitude/latitude) coordinate systems.
 
-Information about these interfaces is printed by {**sf**} the first time the package is loaded. The message tells us the versions of linked GEOS, GDAL and PROJ libraries (these vary between computers and over time) and whether or not the S2 interface is turned on. --- Since {**sf**} version 1.0.0, launched in June 2021, [s2 functionality is now used by default](https://r-spatial.org/r/2020/06/17/s2.html) on geometries with geographic (longitude/latitude) coordinate systems.
-
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-sf-loaded-interfaces}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-sf-loaded-interfaces}
 : Print message about interfaces by loading {**sf**}
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: sf-loaded-interfaces
 #| results: hold
@@ -65,69 +76,86 @@ base::library(sf) # attach package
 
 base::detach("package:sf", unload=TRUE) ## return previous status
 ```
+:::
+::::::
 
-::::
-:::::
-
-A neat feature of {**sf**} is that you can change the default geometry engine used on unprojected data: ‘switching off’ S2 can be done with the command `sf::sf_use_s2(FALSE)`, meaning that the planar geometry engine GEOS will be used by default for all geometry operations, including geometry operations on unprojected data.
+A neat feature of {**sf**} is that you can change the default geometry
+engine used on unprojected data: ‘switching off’ S2 can be done with the
+command `sf::sf_use_s2(FALSE)`, meaning that the planar geometry engine
+GEOS will be used by default for all geometry operations, including
+geometry operations on unprojected data.
 
 ### Introduction to Simple Features
 
-`r glossary("Simple features")` is a hierarchical data model that represents a wide range of geometry types. Of 18 geometry types supported by the specification, only seven are used in the vast majority of geographic research (see @fig-02-sf-classes); these core geometry types are fully supported by the R package {**sf**}.
+`r glossary("Simple features")` is a hierarchical data model that
+represents a wide range of geometry types. Of 18 geometry types
+supported by the specification, only seven are used in the vast majority
+of geographic research (see @fig-02-sf-classes); these core geometry
+types are fully supported by the R package {**sf**}.
 
-***
+------------------------------------------------------------------------
 
-![Simple feature types fully supported by {sf}.](img/02-sf-classes.png){#fig-02-sf-classes 
-fig-alt="The picture shows a square surrounded by six other squares. Three of the squares contain a geometric object titled POINT, LINESTRING, and POLYGON. Three other squares contain two identical geometric objects titles MULTIOPOINT, MULTILINESTRING, AND MULTIPOLYGON. All these six squares have a connection to the centered square called GEOMETRYCOLLECTION containing all the different objects of the six peripheral squares." fig-align="center" 
-width="70%"}
 
-***
+![Simple feature types fully supported by
+{sf}.](img/02-sf-classes-border-min.png){#fig-02-sf-classes
+fig-alt="The picture shows a square surrounded by six other squares. Three of the squares contain a geometric object titled POINT, LINESTRING, and POLYGON. Three other squares contain two identical geometric objects titles MULTIOPOINT, MULTILINESTRING, AND MULTIPOLYGON. All these six squares have a connection to the centered square called GEOMETRYCOLLECTION containing all the different objects of the six peripheral squares."
+fig-align="center" width="70%"}
 
-{**sf**} provides the same functionality (and more) previously provided in three (now deprecated) packages: 
 
-- {**sp**} for data classes
-- {**rgdal**} for data read/write via an interface to GDAL and PROJ and 
-- {**rgeos**} for spatial operations via an interface to GEOS.
+------------------------------------------------------------------------
 
-::: {.callout-note #nte-02-dprecated-packages}
+{**sf**} provides the same functionality (and more) previously provided
+in three (now deprecated) packages:
+
+-   {**sp**} for data classes
+-   {**rgdal**} for data read/write via an interface to GDAL and PROJ
+    and
+-   {**rgeos**} for spatial operations via an interface to GEOS.
+
+::: {#nte-02-dprecated-packages .callout-note}
 ###### Deprecated packages & the history of the R-spatial ecosystem
 
-This detailed infos (together with the history of the R-spatial ecosystem provided in Chapter 1 of the book) I would have needed earlier. When I started to learn spatial data science (one month ago, December 2024) I was confused about the many different packages with similar functionality.
+This detailed infos (together with the history of the R-spatial
+ecosystem provided in Chapter 1 of the book) I would have needed
+earlier. When I started to learn spatial data science (one month ago,
+December 2024) I was confused about the many different packages with
+similar functionality.
 :::
 
-sf’s functionality is well documented on its website at [r-spatial.github.io/sf/](r-spatial.github.io/sf/) which contains seven vignettes. 
+sf’s functionality is well documented on its website at
+[r-spatial.github.io/sf/](r-spatial.github.io/sf/) which contains seven
+vignettes.
 
-::: {.callout-important #imp-02-sf-definition}
-###### Simple feature objects 
+::: {#imp-02-sf-definition .callout-important}
+###### Simple feature objects
 
-Simple feature objects in R are stored in a data frame, with geographic data occupying a special column, usually named ‘geom’ or ‘geometry’. Simple features are, in essence, data frames with a spatial extension.
+Simple feature objects in R are stored in a data frame, with geographic
+data occupying a special column, usually named ‘geom’ or ‘geometry’.
+Simple features are, in essence, data frames with a spatial extension.
 :::
 
+:::::::::::::::::::::::::::: my-code-collection
+::::: my-code-collection-header
+::: my-code-collection-icon
+:::
 
-
-::: {.my-code-collection}
-:::: {.my-code-collection-header}
-::::: {.my-code-collection-icon}
-:::::
-:::::: {#exm-02-inspect-sf-classes}
+::: {#exm-02-inspect-sf-classes}
 : Inspect {**sf**} classes, plotting, summary, and subsetting
-::::::
+:::
+:::::
 
-::::
-
-::::{.my-code-collection-container}
-
-::: {.panel-tabset}
-
+:::::::::::::::::::::::: my-code-collection-container
+::::::::::::::::::::::: panel-tabset
 ###### Inspect data
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-inspect-sf-world-data}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-inspect-sf-world-data}
 : Inspect class and column names of `world`
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: inspect-sf-world-data
 #| results: hold
@@ -137,24 +165,24 @@ base::class(world)
 base::names(world)
 ```
 
-***
+------------------------------------------------------------------------
 
-The contents of the `geom` column give {**sf**} objects their spatial powers: `world$geom` is a ‘list column’ that contains all the coordinates of the country polygons.
-
-
-::::
-:::::
-
+The contents of the `geom` column give {**sf**} objects their spatial
+powers: `world$geom` is a ‘list column’ that contains all the
+coordinates of the country polygons.
+:::
+::::::
 
 ###### Plot data
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-plot-sf-world-data}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-plot-sf-world-data}
 : Plot `world` data
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: fig-02-plot-sf-world-data
 #| fig-cap: "Map of the world using the {**sf**} package, with a facet for each attribute."
@@ -165,25 +193,32 @@ sf:::plot.sf(world, max.plot = 10) # 11 cols but 'geom' does not count as attrib
 sf:::plot.sf(world, max.plot = Inf) # plot all availabe attributes (3)
 ```
 
-***
+------------------------------------------------------------------------
 
-Instead of creating a single map by default for geographic objects, as most GIS programs do, `plot()`ing `sf` objects results in a map for each variable in the datasets. This behavior can be useful for exploring the spatial distribution of different variables.
+Instead of creating a single map by default for geographic objects, as
+most GIS programs do, `plot()`ing `sf` objects results in a map for each
+variable in the datasets. This behavior can be useful for exploring the
+spatial distribution of different variables.
 
-If you attach the {**sf**} package with `library(sf)` then `plot(world)` would have worked. But it is not the `base::plot()` function as errors in line 2 and 3 would show. `plot()` is a generic function that is extended by other packages. {**sf**} contains the non-exported (hidden from users most of the time and therefore with three columns prefixed) `sf:::plot.sf()` function which is called behind the scenes.
-
-
-::::
-:::::
+If you attach the {**sf**} package with `library(sf)` then `plot(world)`
+would have worked. But it is not the `base::plot()` function as errors
+in line 2 and 3 would show. `plot()` is a generic function that is
+extended by other packages. {**sf**} contains the non-exported (hidden
+from users most of the time and therefore with three columns prefixed)
+`sf:::plot.sf()` function which is called behind the scenes.
+:::
+::::::
 
 ###### Summary
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-sf-summary}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-sf-summary}
 : Treating sf objects as data frames
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: sf-summary
 
@@ -192,21 +227,25 @@ base::summary(world["lifeExp"]) # infos about the 'geom' column
 base::summary(world$lifeExp) # no infos about the 'geom' column
 ```
 
-***
+------------------------------------------------------------------------
 
-Treating geographic objects as regular data frames with spatial powers has many advantages, especially if you are already used to working with data frames. The commonly used `summary()` function, for example, provides a useful overview of the variables within the world object.
-::::
-:::::
+Treating geographic objects as regular data frames with spatial powers
+has many advantages, especially if you are already used to working with
+data frames. The commonly used `summary()` function, for example,
+provides a useful overview of the variables within the world object.
+:::
+::::::
 
 ###### Subsetting
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-sf-subsetting}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-sf-subsetting}
 : Subsetting `sf` object with base R and {dplyr}
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: sf-subsetting
 
@@ -216,27 +255,32 @@ world |> # tidyverse subsetting
     dplyr::select(1:3)
 ```
 
+------------------------------------------------------------------------
 
-***
+Subsetting is another example where `sf` objects are treating as normal
+data frames. The output shows two major differences compared with a
+regular data.frame:
 
-Subsetting is another example where `sf` objects are treating as normal data frames. The output shows two major differences compared with a regular data.frame: 
+-   the inclusion of additional geographic metadata (Geometry type,
+    Dimension, Bounding box and coordinate reference system
+    information), and
+-   the presence of a ‘geometry column’, here named "geom".
 
-- the inclusion of additional geographic metadata (Geometry type, Dimension, Bounding box and coordinate reference system information), and 
-- the presence of a ‘geometry column’, here named "geom".
-
-Base R and tidyverse subsetting yield the same result, but with slightly different formatting of the 'geom' column.
-::::
-:::::
+Base R and tidyverse subsetting yield the same result, but with slightly
+different formatting of the 'geom' column.
+:::
+::::::
 
 ###### Class of 'geom' column
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-geom-class}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-geom-class}
 : Class of the 'geom' column and of one entry of the 'geom' column
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: 02-geom-class
 #| results: hold
@@ -246,49 +290,61 @@ base::class(world$geom) # class of 'geom' column (sfc)
 base::class(world$geom[[1]]) # class of first entry of 'geom' (sfg)
 ```
 
-***
+------------------------------------------------------------------------
 
-Here you can see the hierarchy of the three object types in the {**sf**} universe. I explain it in reverse order, starting with the lowest level:
+Here you can see the hierarchy of the three object types in the {**sf**}
+universe. I explain it in reverse order, starting with the lowest level:
 
-- **sfg (Simple Feature Gemometry)** is the lowest unit; it has only coordinates (according to the [well-known text](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry) (`r glossary("WKT")`) standard)
-- **sfc (Simple Feature Gemometry Collection)** is a set of sfg's, plus - crucially! - information about interpretation of the coordinate reference system / are the coordinates in meters, or degrees? plane or sphere? if sphere, which one? this is highly standardized stuff, often described in terms of `r glossary("EPSG")` codes ([EPSG Geodetic Parameter Dataset](https://epsg.org/home.html)).
-- **sf (Simple Feature)** is a sfc geometry with data columns, in addition to the geometry.
-
-::::
-:::::
-
-
+-   **sfg (Simple Feature Gemometry)** is the lowest unit; it has only
+    coordinates (according to the [well-known
+    text](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry)
+    (`r glossary("WKT")`) standard)
+-   **sfc (Simple Feature Gemometry Collection)** is a set of sfg's,
+    plus - crucially! - information about interpretation of the
+    coordinate reference system / are the coordinates in meters, or
+    degrees? plane or sphere? if sphere, which one? this is highly
+    standardized stuff, often described in terms of `r glossary("EPSG")`
+    codes ([EPSG Geodetic Parameter
+    Dataset](https://epsg.org/home.html)).
+-   **sf (Simple Feature)** is a sfc geometry with data columns, in
+    addition to the geometry.
 :::
-
-::::
-:::::
+::::::
+:::::::::::::::::::::::
+::::::::::::::::::::::::
+::::::::::::::::::::::::::::
 
 ### Why simple features?
 
-Simple features is a widely supported data model that underlies data structures in many `r glossary("GISx", "GIS")` applications including [QGIS](https://qgis.org/) and [PostGIS](https://postgis.net/).
+Simple features is a widely supported data model that underlies data
+structures in many `r glossary("GISx", "GIS")` applications including
+[QGIS](https://qgis.org/) and [PostGIS](https://postgis.net/).
 
 There are numerous advantages using the {**sf**} package:
 
-- Fast reading and writing of data
-- Enhanced plotting performance
-- `sf` objects can be treated as data frames in most operations
-- `sf` function names are relatively consistent and intuitive (all begin with `st_`)
-- `sf` functions can be combined with the |> operator and works well with the {**tidyverse**} collection of R packages.
+-   Fast reading and writing of data
+-   Enhanced plotting performance
+-   `sf` objects can be treated as data frames in most operations
+-   `sf` function names are relatively consistent and intuitive (all
+    begin with `st_`)
+-   `sf` functions can be combined with the \|\> operator and works well
+    with the {**tidyverse**} collection of R packages.
 
-`sf::st_read()` vs. `sf::read_sf()` are good examples to show and compare the support for the {**tidyverse**} pckages. 
+`sf::st_read()` vs. `sf::read_sf()` are good examples to show and
+compare the support for the {**tidyverse**} pckages.
 
 -   `sf::st_read()` emits verbose messages and returns the file content
     stored in a base R `data.frame`.
 -   `sf::read_sf()` silently returns data as a tidyverse `tibble`.
 
-
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-compare-df-tib}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-compare-df-tib}
 : Compare `sf::st_read()` with `sf::read_sf()`
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: compare-df-tib
 
@@ -298,134 +354,128 @@ base::class(world_dfr) # base data.frame
 base::class(world_tbl) # tidyverse tibble
 ```
 
-***
+------------------------------------------------------------------------
 
-Data files from the {**spData**} package are located in the folder "shapes" inside the {**spData**} package folder.This can be detected manually in the operating systems by
-opening the folder "spData" for the {**spData**} package. To get the
-file path one has to use the `base::system.file()` function with the
-appropriate package name and providing the path to the file inside this
-package: `system.file("shapes/world.gpkg", package = "spData")`.
+Data files from the {**spData**} package are located in the folder
+"shapes" inside the {**spData**} package folder.This can be detected
+manually in the operating systems by opening the folder "spData" for the
+{**spData**} package. To get the file path one has to use the
+`base::system.file()` function with the appropriate package name and
+providing the path to the file inside this package:
+`system.file("shapes/world.gpkg", package = "spData")`.
+:::
+::::::
 
-
-
-::::
-:::::
-
-
-::: {.callout-note #nte-importance-sf}
+::: {#nte-importance-sf .callout-note}
 ###### {**sf**} is now the go-to package for analysis of spatial vector data in R
- 
-{**spatstat**}, a package ecosystem which provides numerous functions for spatial statistics, and {**terra**} both have vector geographic data classes, but neither has the same level of uptake as {**sf**} does for working with vector data. Many popular packages build on {**sf**}.
+
+{**spatstat**}, a package ecosystem which provides numerous functions
+for spatial statistics, and {**terra**} both have vector geographic data
+classes, but neither has the same level of uptake as {**sf**} does for
+working with vector data. Many popular packages build on {**sf**}.
 :::
 
 ### Basic Maps
 
-::: {.my-code-collection}
-:::: {.my-code-collection-header}
-::::: {.my-code-collection-icon}
-:::::
-:::::: {#exm-02-sf-basic-maps}
+:::::::::::::::::::: my-code-collection
+::::: my-code-collection-header
+::: my-code-collection-icon
+:::
+
+::: {#exm-02-sf-basic-maps}
 : Basic maps created with {sf}
-::::::
+:::
+:::::
 
-::::
-
-::::{.my-code-collection-container}
-
-::: {.panel-tabset}
-
+:::::::::::::::: my-code-collection-container
+::::::::::::::: panel-tabset
 ###### Multi-panel plot
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-sf-multi-panel-plot}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-sf-multi-panel-plot}
 : Multi-panel plot with {sf}
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: fig-02-sf-multi-panel-plot
 #| fig-cap: "A multi-panel plot with {**sf**} creates one sub-plot for each variable of the object."
 
 sf:::plot.sf(world[3:6])
 ```
-
-
-::::
-:::::
-
+:::
+::::::
 
 ###### Single plot
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-sf-single-plot}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-sf-single-plot}
 : Single plot with {sf}
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: fig-02-sf-single-plot
 #| fig-cap: "If the object to be plotted with {sf} has a single variable, then a legend with a continuous color is produced."
 
 sf:::plot.sf(world["pop"])
 ```
-
-::::
-:::::
+:::
+::::::
 
 ###### Fixed colors
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-sf-fixed-color-plot}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-sf-fixed-color-plot}
 : Plot with {sf} with fixed country and border colors
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: fig-02-sf-fixed-color-plot
 #| fig-cap: "You can set fixed colors in the `sf::plot.sf()` commands with `col` and `border` arguments."
 
 sf:::plot.sf(world["pop"], col = "lightblue", border = "black")
 ```
+:::
+::::::
+:::::::::::::::
+::::::::::::::::
+::::::::::::::::::::
 
-::::
-:::::
+There are various ways to modify maps with {**sf**}’s plot() method.
+Because {**sf**} extends base R plotting methods, `graphics::plot()`’s
+arguments work with {**sf**} objects (see `?graphics::plot` and `?par`
+for information on arguments.)
 
-
+:::::::::::::::::::: my-code-collection
+::::: my-code-collection-header
+::: my-code-collection-icon
 :::
 
-::::
-:::::
-
-There are various ways to modify maps with {**sf**}’s plot() method. Because {**sf**} extends base R plotting methods, `graphics::plot()`’s arguments work with {**sf**} objects (see `?graphics::plot` and `?par` for information on arguments.)
-
-
-
-::: {.my-code-collection}
-:::: {.my-code-collection-header}
-::::: {.my-code-collection-icon}
-:::::
-:::::: {#exm-02-sf-adding-plot-layers}
+::: {#exm-02-sf-adding-plot-layers}
 : Adding different layers to plot output of `sf` objects
-::::::
+:::
+:::::
 
-::::
-
-::::{.my-code-collection-container}
-
-::: {.panel-tabset}
-
+:::::::::::::::: my-code-collection-container
+::::::::::::::: panel-tabset
 ###### filters & combining
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-sf-filter-and-combine}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-sf-filter-and-combine}
 : Numbered R Code Title
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: fig-02-sf-filter-and-combine
 #| fig-cap: "Plot of Asia added as a layer on top of countries worldwide."
@@ -444,24 +494,30 @@ plot(asia, add = TRUE, col = "red")
 detach("package:sf", unload = TRUE) # return to previous state, unload {sf}
 ```
 
-***
+------------------------------------------------------------------------
 
-Plots are added as layers to existing images by setting `add = TRUE`. Line (1) in the above code chunk filters countries in Asia and combines them in line (2) into a single feature.
+Plots are added as layers to existing images by setting `add = TRUE`.
+Line (1) in the above code chunk filters countries in Asia and combines
+them in line (2) into a single feature.
 
-We can now plot the Asian continent over a map of the world. Note that the first plot (line (3)) must only have one facet for `add = TRUE` to work. If the first plot has a key (legend), `reset = FALSE` must be used.
-::::
-:::::
-
+We can now plot the Asian continent over a map of the world. Note that
+the first plot (line (3)) must only have one facet for `add = TRUE` to
+work. If the first plot has a key (legend), `reset = FALSE` must be
+used.
+:::
+::::::
 
 ###### unprojected
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-sf-overlay-circles-unprojected}
-: Overlay circles representing country population on a world map (unprojected version)
-::::::
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-sf-overlay-circles-unprojected}
+: Overlay circles representing country population on a world map
+(unprojected version)
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: fig-02-sf-overlay-circles-unprojected
 #| fig-cap: "Overlaying circles, whose diameters (set with `cex =`) represent country populations, on a map of the world. Unprojected version"
@@ -478,28 +534,33 @@ plot(sf::st_geometry(world_cents), add = TRUE, cex = cex)  # (4)
 detach("package:sf", unload = TRUE) # return to previous state, unload {sf}
 ```
 
-***
+------------------------------------------------------------------------
 
-The code above uses the function `sf::st_centroid()` to convert one geometry type (polygons) to another (points) (see @XXXChapter5), the aesthetics of which are varied with the `cex` argument.
+The code above uses the function `sf::st_centroid()` to convert one
+geometry type (polygons) to another (points) (see @XXXChapter5), the
+aesthetics of which are varied with the `cex` argument.
 
-The `sf::st_centroid()` function (line 3) produced: *'Warning: st_centroid assumes attributes are constant over geometries'*. 
+The `sf::st_centroid()` function (line 3) produced: *'Warning:
+st_centroid assumes attributes are constant over geometries'*.
 
-> "The reason for this is that the dataset contains variables with values that are associated with entire polygons … meaning they are not associated with a POINT geometry replacing the polygon." [@pebesma-2023, chapter 5]
-
-
-::::
-:::::
-
+> "The reason for this is that the dataset contains variables with
+> values that are associated with entire polygons … meaning they are not
+> associated with a POINT geometry replacing the polygon."
+> [@pebesma-2023, chapter 5]
+:::
+::::::
 
 ###### projected
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-sf-overlay-circles-projected}
-: Overlay circles representing country population on a world map (projected version)
-::::::
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-sf-overlay-circles-projected}
+: Overlay circles representing country population on a world map
+(projected version)
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: fig-02-sf-overlay-circles-projected
 #| fig-cap: "Overlaying circles, whose diameters (set with `cex =`) represent country populations, on a map of the world. Projected version"
@@ -521,46 +582,55 @@ plot(sf::st_geometry(world_cents), add = TRUE, cex = cex, lwd = 2, graticule = T
 detach("package:sf", unload = TRUE) # return to previous state, unload {sf}
 ```
 
-***
+------------------------------------------------------------------------
 
-For the above code I used the [script 02-contplot.R](https://github.com/geocompx/geocompr/blob/main/code/02-contpop.R). There are new code lines to change the unprojected to a projected figure that I do not yet understand fully.
+For the above code I used the [script
+02-contplot.R](https://github.com/geocompx/geocompr/blob/main/code/02-contpop.R).
+There are new code lines to change the unprojected to a projected figure
+that I do not yet understand fully.
+:::
+::::::
+:::::::::::::::
 
-::::
-:::::
+In all code chunks of this code collection I had to attach {**sf**}
+because the `sf:plot.sf(`) commands did not work. I received the error
+message '*Error in if (ncol(x) == 1) { : argument is of length zero*'.
+After changing the original code of the function to
+`if (isTRUE(x) && ncol(x) == 1)` I received other errors. Finally I gave
+up and used the standard `base::library(sf)`.
+::::::::::::::::
+::::::::::::::::::::
 
+{**sf**}’s plot method also has arguments specific to geographic data.
+`expandBB`, for example, can be used to plot an `sf` object in context:
+it takes a numeric vector of length four that expands the bounding box
+of the plot relative to zero in the following order: bottom, left, top,
+right. This is used in the following code to plot India in the context
+of its giant Asian neighbors, with an emphasis on China to the east.
+
+:::::::::::::::: my-code-collection
+::::: my-code-collection-header
+::: my-code-collection-icon
 :::
 
-In all code chunks of this code collection I had to attach {**sf**} because the `sf:plot.sf(`) commands did not work. I received the error message '*Error in if (ncol(x) == 1) { : argument is of length zero*'. After changing the original code of the function to `if (isTRUE(x) && ncol(x) == 1)` I received other errors. Finally I gave up and used the standard `base::library(sf)`. 
-
-::::
-:::::
-
-
-{**sf**}’s plot method also has arguments specific to geographic data. `expandBB`, for example, can be used to plot an `sf` object in context: it takes a numeric vector of length four that expands the bounding box of the plot relative to zero in the following order: bottom, left, top, right. This is used in the following code to plot India in the context of its giant Asian neighbors, with an emphasis on China to the east.
-
-::: {.my-code-collection}
-:::: {.my-code-collection-header}
-::::: {.my-code-collection-icon}
-:::::
-:::::: {#exm-02-using-expandBB}
+::: {#exm-02-using-expandBB}
 : Using `expandBB` argument to plot an `sf` object in context
-::::::
+:::
+:::::
 
-::::
-
-::::{.my-code-collection-container}
-
-::: {.panel-tabset}
-
+:::::::::::: my-code-collection-container
+::::::::::: panel-tabset
 ###### no labels
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-sf-plot-expandBB-no-labels}
-: Creating context by plotting with the `expandBB` argument (without labels)
-::::::
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-sf-plot-expandBB-no-labels}
+: Creating context by plotting with the `expandBB` argument (without
+labels)
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: fig-02-sf-plot-expandBB-no-labels
 #| fig-cap: "India in context, demonstrating the `expandBB` argument (without labels)."
@@ -578,22 +648,20 @@ plot(sf::st_geometry(world_asia), add = TRUE)
 
 detach("package:sf", unload = TRUE) # return to previous state, unload {sf}
 ```
-
-
-::::
-:::::
-
-
+:::
+::::::
 
 ###### with labels
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-sf-plot-expandBB-with-labels}
-: Creating context by plotting with the `expandBB` argument (with labels)
-::::::
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-sf-plot-expandBB-with-labels}
+: Creating context by plotting with the `expandBB` argument (with
+labels)
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: fig-02-sf-plot-expandBB-with-labels
 #| fig-cap: "India in context, demonstrating the `expandBB` argument (with labels)."
@@ -623,58 +691,65 @@ graphics::par(old_par)
 
 detach("package:sf", unload = TRUE) # return to previous state, unload {sf}
 ```
-
-
-::::
-:::::
-
 :::
+::::::
+:::::::::::
 
-Note the use of `lwd` (linewidth) to emphasize India in the plotting code. See @XXXChapter9-2 for other visualization techniques for representing a range of geometry types, the subject of the next section.
-
-::::
-:::::
+Note the use of `lwd` (linewidth) to emphasize India in the plotting
+code. See @XXXChapter9-2 for other visualization techniques for
+representing a range of geometry types, the subject of the next section.
+::::::::::::
+::::::::::::::::
 
 ### Geometry Types
 
-Generally, well-known binary (`r glossary("WKB")`) or well-known text (`r glossary("WKT")`) are the standard encoding for simple feature geometries. 
+Generally, well-known binary (`r glossary("WKB")`) or well-known text
+(`r glossary("WKT")`) are the standard encoding for simple feature
+geometries.
 
-- **WKB** representations are usually hexadecimal strings easily readable for computers. This is why GIS and spatial databases use WKB to transfer and store geometry objects. 
-- **WKT**, on the other hand, is a human-readable text markup description of simple features. Both formats are exchangeable.
+-   **WKB** representations are usually hexadecimal strings easily
+    readable for computers. This is why GIS and spatial databases use
+    WKB to transfer and store geometry objects.
+-   **WKT**, on the other hand, is a human-readable text markup
+    description of simple features. Both formats are exchangeable.
 
 ### The sf class
 
-Simple features consist of two main parts: geometries and non-geographic attributes. @fig-02-sf-diagram shows how an `sf` object is created – geometries come from an `sfc` object, while attributes are taken from a `data.fram`e or `tibble`. 
+Simple features consist of two main parts: geometries and non-geographic
+attributes. @fig-02-sf-diagram shows how an `sf` object is created –
+geometries come from an `sfc` object, while attributes are taken from a
+`data.fram`e or `tibble`.
 
-![Building blocks of `sf` objects](img/02-sfdiagram.png){#fig-02-sf-diagram 
-fig-alt="alt-text" fig-align="center" 
-width="100%"}
+![Building blocks of `sf`
+objects](img/02-sf-diagram-border-min.png){#fig-02-sf-diagram
+fig-alt="alt-text"
+fig-align="center" width="100%"}
 
-More about building sf geometries from scratch see @XXXChapter2-2-6 and @XXXChapter2-2-7.
+More about building sf geometries from scratch see @sec-02-sf-sfg and
+@sec-02-sf-sfc.
 
-::: {.my-code-collection}
-:::: {.my-code-collection-header}
-::::: {.my-code-collection-icon}
-:::::
-:::::: {#exm-02-sf-builing-blocks}
+:::::::::::::::: my-code-collection
+::::: my-code-collection-header
+::: my-code-collection-icon
+:::
+
+::: {#exm-02-sf-builing-blocks}
 : Creation and Class of sf Building Blocks
-::::::
+:::
+:::::
 
-::::
-
-::::{.my-code-collection-container}
-
-::: {.panel-tabset}
-
+:::::::::::: my-code-collection-container
+::::::::::: panel-tabset
 ###### Creation
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-sf-building-block-creation}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-sf-building-block-creation}
 : Building blocks of `sf` objects
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: sf-building-block-creation
 
@@ -693,29 +768,36 @@ More about building sf geometries from scratch see @XXXChapter2-2-6 and @XXXChap
 
 ```
 
-***
+------------------------------------------------------------------------
 
-- **Line 1**: The coordinates were used to create the simple feature geometry (sfg). 
-- **Line 2**: The geometry was converted into a simple feature geometry column (sfc), with a `r glossary("CRS")`. 
-- **Line 3**: Attributes were stored in a data.frame. 
-- **Line 4**: The data.frame was combined with the sfc object. The results in an sf object.
+-   **Line 1**: The coordinates were used to create the simple feature
+    geometry (sfg).
+-   **Line 2**: The geometry was converted into a simple feature
+    geometry column (sfc), with a `r glossary("CRS")`.
+-   **Line 3**: Attributes were stored in a data.frame.
+-   **Line 4**: The data.frame was combined with the sfc object. The
+    results in an sf object.
 
-The result shows that `sf` objects actually have two classes, `sf` and `data.frame`. Simple features are simply data frames (square tables), but with spatial attributes stored in a list column, usually called geometry or geom, as described in @imp-02-sf-definition. This duality is central to the concept of simple features: most of the time a `sf` can be treated as and behaves like a data.frame. **Simple features are, in essence, data frames with a spatial extension.**
-
-::::
-:::::
-
-
+The result shows that `sf` objects actually have two classes, `sf` and
+`data.frame`. Simple features are simply data frames (square tables),
+but with spatial attributes stored in a list column, usually called
+geometry or geom, as described in @imp-02-sf-definition. This duality is
+central to the concept of simple features: most of the time a `sf` can
+be treated as and behaves like a data.frame. **Simple features are, in
+essence, data frames with a spatial extension.**
+:::
+::::::
 
 ###### Classes
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-02-sf-classes}
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-02-sf-classes}
 : Classes of sf Building Blocks
-::::::
 :::
-::::{.my-r-code-container}
+::::
+
+::: my-r-code-container
 ```{r}
 #| label: sf-classes
 
@@ -725,9 +807,308 @@ base::class(lnd_attrib) # data.frame
 base::class(lnd_sf)     # sf
 ```
 
+------------------------------------------------------------------------
+
+Depending of the created geometry type POINT can be replaced by
+LINESTRING, POLYGON, MUTLIPOINT, MULTILINESTRING, MULTIPOLYGON. It is
+most often the case that the objects are of identical type. In case of a
+mix of types or an empty set, POINT (or any of the other mentioned
+gemoetries) are set to the superclass GEOMETRY.
+:::
+::::::
+:::::::::::
+::::::::::::
+::::::::::::::::
+
+@fig-02-building-blocks-sf shows --- as a kind of summary --- the
+different `sf` objects in their contexts [Picture taken from
+@sadler-2018].
+
+![Building Blocks of sf
+objects](img/02-sf-building-blocks-border-min.jpg){#fig-02-building-blocks-sf
+fig-alt="alt-text" style="border: 0px solid black; padding: 5px;"
+fig-align="center" width="100%"}
+
+### Simple Feature Geometries (sfg) {#sec-02-sf-sfg}
+
+The `r glossary("sfg")` class represents the different simple feature geometry types in R: point, linestring, polygon (and their ‘multi’ equivalents, such as multipoints) or geometry collection.
+
+Usually you are spared the tedious task of creating geometries on your own since you can simply import an already existing spatial file. However, there are a set of functions to create simple feature geometry objects (sfg) from scratch, if needed. The names of these functions are simple and consistent, as they all start with the `st_` prefix and end with the name of the geometry type in lowercase letters:
+
+- A point: `sf::st_point()`
+- A linestring: `sf::st_linestring()`
+- A polygon: `sf::st_polygon()`
+- A multipoint: `sf::st_multipoint()`
+- A multilinestring: `sf::st_multilinestring()`
+- A multipolygon: `sf::st_multipolygon()`
+- A geometry collection: `sf::st_geometrycollection()`
+
+sfg objects can be created from three base R data types:
+
+- **Numeric vector**: a single point
+- **Matrix**: a set of points, where each row represents a point, a multipoint or linestring
+- **List**: a collection of objects such as matrices, multilinestrings or geometry collections.
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-02-creating-sfg}
+: Creating Simple Feature Geometries (sfg)
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Numeric Vectors
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-create-single-points}
+: Create single points from numerical vectors
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: create-single-points
+
+sf::st_point(base::c(5, 2))                 # XY point
+sf::st_point(base::c(5, 2, 3))              # XYZ point
+sf::st_point(base::c(5, 2, 1), dim = "XYM") # XYM point
+sf::st_point(base::c(5, 2, 3, 1))           # XYZM point
+```
+
+
 ***
 
-Depending of the created geometry type POINT can be replaced by LINESTRING, POLYGON, MUTLIPOINT, MULTILINESTRING, MULTIPOLYGON. It is most often the case that the objects are of identical type. In case of a mix of types or an empty set, POINT (or any of the other mentioned gemoetries) are set to the superclass GEOMETRY.
+"XYZ" refers to coordinates where the third dimension represents altitude, "XYM" refers to three-dimensional coordinates where the third dimension refers to something else ("M" for measure).
+
+The results show that XY (2D coordinates), XYZ (3D coordinates, Z = altitude) and XYZM (3D with an additional variable, typically measurement accuracy, M = measurement) point types are created from vectors of lengths 2, 3, and 4, respectively. The XYM type must be specified using the `dim` argument (which is short for dimension).
+::::
+:::::
+
+
+###### Matrices
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-create-multipoint-linestring}
+: Create multipoint and linestring from matrices
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: create-multipoint-linestring
+
+
+multipoint_matrix = base::rbind(c(5, 2), c(1, 3), c(3, 4), c(3, 2))
+sf::st_multipoint(multipoint_matrix) ## MULTIPOINT
+
+
+linestring_matrix = base::rbind(c(1, 5), c(4, 4), c(4, 1), c(2, 2), c(3, 2))
+sf::st_linestring(linestring_matrix) ## LINESTRING
+```
+
+***
+
+The `base::rbind()` function simplifies the creation of matrices.
+
+I have `base::` not prefixed to `c()`.
+::::
+:::::
+
+###### Lists
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-create-from-lists}
+: Create polygons from lists
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: create-from-lists
+
+## POLYGON
+polygon_list = base::list(base::rbind(c(1, 5), c(2, 2), c(4, 1), c(4, 4), c(1, 5)))
+sf::st_polygon(polygon_list) 
+
+## POLYGON with a hole
+polygon_border = base::rbind(c(1, 5), c(2, 2), c(4, 1), c(4, 4), c(1, 5))
+polygon_hole = base::rbind(c(2, 4), c(3, 4), c(3, 3), c(2, 3), c(2, 4))
+polygon_with_hole_list = base::list(polygon_border, polygon_hole)
+sf::st_polygon(polygon_with_hole_list) 
+
+
+## MULTILINESTRING
+multilinestring_list = base::list(base::rbind(c(1, 5), c(4, 4), c(4, 1), c(2, 2), c(3, 2)), 
+                            base::rbind(c(1, 2), c(2, 4)))
+sf::st_multilinestring(multilinestring_list) 
+
+
+## MULTIPOLYGON
+multipolygon_list = base::list(base::list(base::rbind(c(1, 5), c(2, 2), c(4, 1), c(4, 4), c(1, 5))),
+                         base::list(base::rbind(c(0, 2), c(1, 2), c(1, 3), c(0, 3), c(0, 2))))
+sf::st_multipolygon(multipolygon_list) 
+
+## GEOMETRYCOLLECTION
+geometrycollection_list = base::list(sf::st_multipoint(multipoint_matrix),
+                              sf::st_linestring(linestring_matrix))
+sf::st_geometrycollection(geometrycollection_list) 
+
+```
+
+***
+
+I have `base::` not prefixed to `c()`.
+
+::::
+:::::
+
+
+:::
+
+::::
+:::::
+
+### Simple feature columns (sfc) {#sec-02-sf-sfc}
+
+One `r glossary("sfg")` object contains only a single simple feature geometry. A simple feature geometry column (`r glossary("sfc")`) is a list of sfg objects, which is additionally able to contain information about the `r glossary("CRS")` in use. For instance, to combine two simple features into one object with two features, we can use the `sf::st_sfc()` function. This is important since **sfc represents the geometry column in sf data frames**.
+
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-02-sfc}
+: Simple feature columns (sfc)
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### sfc POINT
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sfc-point}
+: Geometry set of two POINTS features
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sfc-point
+
+point1 = sf::st_point(c(5, 2))
+point2 = sf::st_point(c(1, 3))
+points_sfc = sf::st_sfc(point1, point2)
+points_sfc
+```
+
+
+***
+
+Besides returning the  dimensions of the bounding box it also returns the `r glossary("CRS")`. In this case it is `NA` (not available)
+::::
+:::::
+
+
+###### sfc POLYGON
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-sfc-polygon}
+: Geometry set of two POLYGON features and showing the resulting sfc types
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sfc-polygon
+
+polygon_list1 = list(rbind(c(1, 5), c(2, 2), c(4, 1), c(4, 4), c(1, 5)))
+polygon1 = sf::st_polygon(polygon_list1)
+polygon_list2 = list(rbind(c(0, 2), c(1, 2), c(1, 3), c(0, 3), c(0, 2)))
+polygon2 = sf::st_polygon(polygon_list2)
+( polygon_sfc = sf::st_sfc(polygon1, polygon2) )
+( geom_type <- sf::st_geometry_type(polygon_sfc) )
+
+base::class(polygon_sfc)
+base::class(geom_type)
+base::levels(geom_type)
+```
+***
+
+In most cases, an sfc object contains objects of the same geometry type. Therefore, when we convert sfg objects of type polygon into a simple feature geometry column, we would also end up with an sfc object of type polygon, which can be verified with `sf::st_geometry_type()`.
+
+(You will get a similar result binding several MULTILINESTRINGs together, or another type of geometry. I will skip this code chunk.)
+
+Additionally I was here interested to get all 18 levels of the geometry type of "polygon_sfc" with `base::levels()`. I knew already of the first eight but the rest are new to me. Detailed information about all types can be found in the {**sf**} vignette [1. Simple Features of R](https://r-spatial.github.io/sf/articles/sf1.html) under the section [Simple feature geometry types](https://r-spatial.github.io/sf/articles/sf1.html#simple-feature-geometry-types).
+
+
+::: {.callout-note #nte-02-difference-gemoetry-geometrycollection}
+###### What is the difference between GEOMETRY and GEOMETRYCOLLECTION?
+
+- GEOMETRY is used to describe a **list of geometries** of varying types or an empty set.
+- GEOMETRYCOLLECTION is used to describe a **single geometry** that can contain multiple types of geometries.
+:::
+
+(Here I have abstained from prefixing `base::` to `c()`, `list()` and `rbind()`)
+::::
+:::::
+
+###### sfc GEOMETRY
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sfc-geometry}
+: Geometry set of two different geometry features and showing the resulting sfc types
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sfc-geometry
+
+point_polygon_sfc = sf::st_sfc(point1, polygon1) 
+sf::st_geometry_type(point_polygon_sfc)
+class(point_polygon_sfc)
+```
+***
+
+It is also possible to create an sfc object from sfg objects with different geometry types. It results in the superclass GEOMETRY.
+::::
+:::::
+
+###### Set CRS
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-set-crs}
+: Check and set Coordinate Reference System (CRS)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: set-crs
+
+# Check the CRS
+sf::st_crs(points_sfc)
+
+# Set the CRS with an identifier referring to an 'EPSG' CRS code:
+points_sfc_wgs = sf::st_sfc(point1, point2, crs = "EPSG:4326")
+
+# print CRS
+sf::st_crs(points_sfc_wgs) 
+```
+
+***
+
+All geometries in sfc objects must have the same `r glossary("CRS")`. A CRS can be specified with the crs argument of `sf::st_sfc()` (or `sf::st_sf()`), which takes a CRS identifier provided as a text string, such as `crs = "EPSG:4326"` (see @XXXSection7-2 for other CRS representations and details on what this means).
 
 ::::
 :::::
@@ -737,12 +1118,237 @@ Depending of the created geometry type POINT can be replaced by LINESTRING, POLY
 ::::
 :::::
 
+### The sfheaders package
 
-@fig-02-building-blocks-sf shows --- as a kind of summary --- the different `sf` objects in their contexts [Picture taken from @sadler-2018]. 
+{**sfheaders**} is an R package that speeds-up the construction, conversion and manipulation of `sf` objects [@sfheaders]). It focuses on building `sf` objects from vectors, matrices and data frames, rapidly, and without depending on the {**sf**} library; and exposing its underlying C++ code through header files (hence the name, sfheaders). (See the package profile at @sec-sfheaders.)
+
+This approach enables others to extend it using compiled and fast-running code. Every core {**sfheaders**} function has a corresponding C++ implementation, as described in the [Cpp vignette](https://dcooley.github.io/sfheaders/articles/Cpp.html). For most people, the R functions will be more than sufficient to benefit from the computational speed of the package. {**sfheaders**} was developed separately from {**sf**}, but aims to be fully compatible, creating valid `sf` objects of the type described in preceding sections.
+
+The simplest use case for sfheaders is demonstrated in the code chunks below with examples of building `sfg`, `sfc`, and `sf` objects showing:
+
+- A vector converted to sfg_POINT
+- A matrix converted to sfg_LINESTRING
+- A data frame converted to sfg_POLYGON
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-ID}
+: Title for code collection
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Vector
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sfheaders-vector}
+: Creating the simplest possible sfg object 
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sfheaders-vector
+
+v = base::c(1, 1)
+v_sfg_sfh = sfheaders::sfg_point(obj = v)
+v_sfg_sfh # printing without sf loaded
+#>      [,1] [,2]
+#> [1,]    1    1
+#> attr(,"class")
+#> [1] "XY"    "POINT" "sfg" 
 
 
-![Building Blocks of sf objects](img/02-building-blocks-sf-objects.jpg){#fig-02-building-blocks-sf 
+# printing with sf loading
+v_sfg_sf = sf::st_point(v)
+base::print(v_sfg_sf) == print(v_sfg_sfh)
+```
+***
+
+This creates the simplest possible sfg object, a single coordinate pair, assigned to a vector named v:
+
+Instead to get as result the underlying structure from the first part of the code (it should result in the four lines of the out-commented code) I got just `POINT (1 1)`. I do not know why this is the case. The version 0.4.4 from 2024-01-18 I have used here newer than the version in the book. Perhaps that the reason that the results are now identical between loading {**sf**} and not loading it?
+
+
+When printing with {sf} loaded, my result is identical with the output in the book.
+::::
+:::::
+
+
+###### Matrix and data.frame
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sfheaders-matrix-df}
+: Creating `sfg` objects from matrices and data frames with {**sfheaders**}
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sfheaders-matrix-df
+
+# matrices
+m = base::matrix(1:8, ncol = 2)
+sfheaders::sfg_linestring(obj = m)
+
+# data frames
+df = base::data.frame(x = 1:4, y = 4:1)
+sfheaders::sfg_polygon(obj = df)
+```
+***
+
+
+::::
+:::::
+
+###### sfc
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sfheaders-sfc}
+: Creating simple feature columns (`sfc`) with {**sfheaders**}
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sfheaders-sfc
+
+sfheaders::sfc_point(obj = v)
+sfheaders::sfc_linestring(obj = m)
+sfheaders::sfc_polygon(obj = df)
+```
+
+::::
+:::::
+
+###### sf
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sfheaders-sf}
+: Creating sf objects with {**sfheaders**}
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sfheaders-sf
+
+sfheaders::sf_point(obj = v)
+sfheaders::sf_linestring(obj = m)
+sfheaders::sf_polygon(obj = df)
+```
+
+::::
+:::::
+
+###### CRS
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sfheaders-crs}
+: Setting the CRS for calculations or geometric operations using {**sf**} functions
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sfheaders-crs
+
+df_sf = sfheaders::sf_polygon(obj = df)
+sf::st_crs(df_sf) = "EPSG:4326"
+```
+
+In all of the previous examples of this code collection, the CRS was not defined. If you plan on doing any calculations or geometric operations using sf functions, we encourage you to set the CRS (see @XXXChapter7 for details):
+
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+{**sfheaders**} is also good at ‘deconstructing’ and ‘reconstructing’ `sf` objects, meaning converting geometry columns into data frames that contain data on the coordinates of each vertex and geometry feature (and multi-feature) ids. It is fast and reliable at ‘casting’ geometry columns to different types, a topic covered in @XXXChapter5. Benchmarks, in the [package’s documentation](https://dcooley.github.io/sfheaders/articles/examples.html#performance) show it is much faster than the {**sf**} package for such operations.
+
+:::::{.my-remark}
+:::{.my-remark-header}
+:::::: {#rem-02-sfheaders}
+: {**sfheaders**} at the moment for me not relevant
+::::::
+:::
+::::{.my-remark-container}
+I understand that the biggest advantage of {**sfheaders**} is speed in the calculation. At the moment I agree with the following observation:
+
+> For most people, the R functions [of the {**sf**} package] will be more than sufficient to benefit from the computational speed of the package.
+
+Additionally I am still lacking experience with {**sf**} and therefore don't want to learn similar packages at the same time. 
+::::
+:::::
+
+### Spherical geometry operations with S2 {#sec-02-s2}
+
+Since {**sf**} version 1.0.0, R supports spherical geometry operations ‘out of the box’ (and by default), thanks to its interface to Google’s S2 spherical geometry engine via the {**s2**} interface package (s2 package profile: @sec-s2).
+
+S2 is perhaps best known as an example of a Discrete Global Grid System (`r glossary("DGGS")`). Another example is the [H3](https://h3geo.org/) global hexagonal hierarchical spatial index, supported by the R packages {h3r}, {h3jsr}, and {h3lib}. The differences is a complex theme I don't want to tackle yet with my insufficient geocomputing knowledge.
+
+Although potentially useful for describing locations anywhere on Earth using character strings, the main benefit of {**sf**}’s interface to {**S2**} is its provision of drop-in functions for calculations such as distance, buffer, and area calculations, as described in [vignette 7](https://r-spatial.github.io/sf/articles/sf7.html) of {**sf**}’s documentation.
+
+{**sf**} can run in two modes with respect to {**S2**}: on and off. By default the {**S2**} geometry engine is turned on, as can be verified with the following command: `sf::sf_use_s2()` results in `r sf::sf_use_s2()`.
+
+An example of the consequences of turning the geometry engine off can be shown, by creating buffers around the india object created earlier in the chapter (note the warnings emitted when S2 is turned off):
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-diff-s2-on-off}
+: Example of the consequences of turning the geometry engine off
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: diff-s2-on-off
+
+india_buffer_with_s2 = sf::st_buffer(india, 1) # 1 meter
+sf::sf_use_s2(FALSE)
+india_buffer_without_s2 = sf::st_buffer(india, 1) # 1 degree
+```
+
+::::
+:::::
+
+![Example of the consequences of turning off the S2 geometry engine.](img/02-s2example-2-border-min.png){#fig-02-s2-example
 fig-alt="alt-text" fig-align="center" 
 width="100%"}
 
+Both representations of a buffer around India were created with the same command `sf::st_buffer(india, 1)` but the purple polygon object was created with S2 switched on, resulting in a buffer of 1 m. The larger light green polygon was created with S2 switched off, resulting in a buffer of 1 degree, which is not accurate. 
 
+The right panel of Figure 2.12 is incorrect, as the buffer of 1 degree does not return the equal distance around the india polygon. (The explanation why this is the case comes in @XXXSection7-4).
+
+Throughout this book, we will assume that S2 is turned on, unless explicitly stated. There some edge cases include operations on polygons that are not valid according to S2’s stricter definition. If you see error messages such as `#> Error in s2_geography_from_wkb ...` it may be worth trying the command that generated the error message again, after turning off S2. 
+
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-turn-on-s2}
+: Turn S2 on again
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: turn-on-s2
+
+sf::sf_use_s2(TRUE)
+sf::sf_use_s2()
+```
+
+::::
+:::::
+
+
+## Raster data

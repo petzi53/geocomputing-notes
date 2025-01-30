@@ -1,0 +1,15 @@
+{
+  "hash": "ef7b71f404a186dcb9dc440023150506",
+  "result": {
+    "engine": "knitr",
+    "markdown": "# Packages used {#sec-annex-a}\n\n\n\n\n\n\n\n\n\n\n\n## s2 {#sec-s2}\n\n:::::: my-num-packagebox\n::: my-num-packagebox-header\nPackage Profile: S2\n:::\n\n------------------------------------------------------------------------\n\n:::: my-num-packagebox-container\n<center>[Spherical Geometry Operators Using the S2 Geometry Library](https://r-spatial.github.io/s2/) [@s2]</center>\n\n------------------------------------------------------------------------\n\n(*There is no hexagon sticker available for {**Package**}.*)  \n\nProvides R bindings for Google's s2 library for geometric calculations on the sphere. High-performance constructors and exporters provide high compatibility with existing spatial packages, transformers construct new geometries from existing geometries, predicates provide a means to select geometries based on spatial relationships, and accessors extract information about geometries.\n\n------------------------------------------------------------------------\n\n:::::{.my-resource}\n:::{.my-resource-header}\nOther S2 resources\n:::\n::::{.my-resource-container}\n\n- [Welcome to the S2 Geometry Library!](http://s2geometry.io/)\n- {**sf**}-viignette [7. Spherical geometry in sf using s2geometry](https://r-spatial.github.io/sf/articles/sf7.html)\n::::\n:::::\n\n\n::::\n::::::\n\n\n## sfheaders {#sec-sfheaders}\n\n:::::: my-num-packagebox\n::: my-num-packagebox-header\nPackage Profile: sfheaders\n:::\n\n:::: my-num-packagebox-container\n\n***\n\n<center>[Converts Between R Objects and Simple Feature Objects](https://dcooley.github.io/sfheaders/index.html) [@sfheaders]</center>\n\n------------------------------------------------------------------------\n\n(There is no hexagon sticker available for {**sfheaders**}.)    \n\n\nConverts between R and Simple Feature `sf` objects, without depending on the ‘heavy’ Simple Feature library. Conversion functions are available at both the R level, and through {**Rcpp**}.\n\n::::\n::::::\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

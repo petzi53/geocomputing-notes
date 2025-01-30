@@ -1,0 +1,72 @@
+# Packages used {#sec-annex-a}
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = paste0(here::here(), "/R/helper.R"))
+```
+
+## s2 {#sec-s2}
+
+:::::: my-num-packagebox
+::: my-num-packagebox-header
+Package Profile: S2
+:::
+
+------------------------------------------------------------------------
+
+:::: my-num-packagebox-container
+<center>[Spherical Geometry Operators Using the S2 Geometry Library](https://r-spatial.github.io/s2/) [@s2]</center>
+
+------------------------------------------------------------------------
+
+(*There is no hexagon sticker available for {**Package**}.*)  
+
+Provides R bindings for Google's s2 library for geometric calculations on the sphere. High-performance constructors and exporters provide high compatibility with existing spatial packages, transformers construct new geometries from existing geometries, predicates provide a means to select geometries based on spatial relationships, and accessors extract information about geometries.
+
+ S2 is perhaps best known as an example of a Discrete Global Grid System (`r glossary(DGGS")`)
+
+------------------------------------------------------------------------
+
+:::::{.my-resource}
+:::{.my-resource-header}
+Other S2 resources
+:::
+::::{.my-resource-container}
+
+- [Welcome to the S2 Geometry Library!](http://s2geometry.io/)
+- {**sf**}-viignette [7. Spherical geometry in sf using s2geometry](https://r-spatial.github.io/sf/articles/sf7.html)
+- [Geometry on the Sphere: Google's S2 Library](https://docs.google.com/presentation/d/1Hl4KapfAENAOf4gv-pSngKwvS_jwNVHRPZTTDzXXn6Q/edit#slide=id.i143): Slides
+::::
+:::::
+
+
+::::
+::::::
+
+
+## sfheaders {#sec-sfheaders}
+
+:::::: my-num-packagebox
+::: my-num-packagebox-header
+Package Profile: sfheaders
+:::
+
+:::: my-num-packagebox-container
+
+***
+
+<center>[Converts Between R Objects and Simple Feature Objects](https://dcooley.github.io/sfheaders/index.html) [@sfheaders]</center>
+
+------------------------------------------------------------------------
+
+(There is no hexagon sticker available for {**sfheaders**}.)    
+
+
+Converts between R and Simple Feature `sf` objects, without depending on the ‘heavy’ Simple Feature library. Conversion functions are available at both the R level, and through {**Rcpp**}.
+
+::::
+::::::
+

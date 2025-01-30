@@ -18,6 +18,8 @@ book:
     - index.qmd
     - 01-intro.qmd
     - 02-geographic-data.qmd
+  appendices:
+    - 96-packages-used.qmd
 
 bibliography:
     - references.bib
@@ -55,6 +57,7 @@ editor: source
 
 execute:
     freeze: auto
+    cache: true
 
 lightbox: true
 
