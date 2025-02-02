@@ -1,0 +1,15 @@
+{
+  "hash": "845dbc7d9a77bbc7468c77cb9370f416",
+  "result": {
+    "engine": "knitr",
+    "markdown": "# Attribute data operations {#sec-chap03}\n\n\n\n\n\n\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

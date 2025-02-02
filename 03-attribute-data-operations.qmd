@@ -1,0 +1,11 @@
+# Attribute data operations {#sec-chap03}
+
+
+```{r}
+#| label: setup
+#| include: false
+
+base::source(file = "R/helper.R")
+
+```
+

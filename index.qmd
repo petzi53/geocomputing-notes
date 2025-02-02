@@ -3,7 +3,7 @@
 ::: {.callout-note style="color: blue;"}
 #### This is work in progress
 
-I have finished about 8%. Currently I am working on Chapter 2 (Geographic Data in R).
+I have finished about 14%. Currently I am working on Chapter 3 (Attribute data operations).
 
 :::
 
@@ -197,6 +197,8 @@ There is a little inconvenience with abrreviation that could also be part of ano
 
 ## Resources
 
+### Essential resources
+
 ::: {.my-resource}
 ::: {.my-resource-header}
 :::::: {#lem-index-book-resources}
@@ -207,20 +209,44 @@ There is a little inconvenience with abrreviation that could also be part of ano
 ::: {.my-resource-container}
 
 - Lovelace, R., Nowosad, J., & Muenchow, J. (2025). Geocomputation With R (2nd ed.). Chapman & Hall/CRC.
-- Lovelace, R., Nowosad, J., & Muenchow, J. (2025). Geocomputation with R. https://r.geocompx.org/
-- Lovelace, R., Nowosad, J., & Muenchow, J. (2022). Geocomputation with R: an open source book (Version 1.9.1-2) [R, Markdown]. https://github.com/geocompx/geocompr
-- Lovelace, R., Nowosad, J., & Muenchow, J. (2025). Geocomputation with R: Solutions. https://r.geocompx.org/solutions/
-- Lovelace, R., Nowosad, J., & Muenchow, J. (2021). Geocomputation with R (1st ed.). https://geocompr.robinlovelace.net/
+- Lovelace, R., Nowosad, J., & Muenchow, J. (2025). Geocomputation with R. [https://r.geocompx.org/](https://r.geocompx.org/)
+- Lovelace, R., Nowosad, J., & Muenchow, J. (2022). Geocomputation with R: an open source book (Version 1.9.1-2) [R, Markdown]. [https://github.com/geocompx/geocompr](https://github.com/geocompx/geocompr)
+- Lovelace, R., Nowosad, J., & Muenchow, J. (2025). Geocomputation with R: Solutions. [https://r.geocompx.org/solutions/](https://r.geocompx.org/solutions/)
+- Lovelace, R., Nowosad, J., & Muenchow, J. (2021). Geocomputation with R (1st ed.). [https://geocompr.robinlovelace.net/](https://geocompr.robinlovelace.net/)
 - Lovelace, R., Nowosad, J., & Muenchow, J. (2020). Geocomputation with R (1st ed.). Routledge.
 
 :::
 :::
 
+### Other recommended resources
+
+:::::{.my-resource}
+:::{.my-resource-header}
+:::::: {#lem-recommended-resources}
+: Other recommended resources complementing reading
+::::::
+:::
+::::{.my-resource-container}
+
+- Bivand, E. P., Roger. (2025, January 31). Spatial Data Science — Solutions. [https://edzer.github.io/sdsr_exercises/](https://edzer.github.io/sdsr_exercises/)
+- Hijmans, R. J. (2023). The terra package. [https://rspatial.org/pkg/terraPackage.pdf](https://rspatial.org/pkg/terraPackage.pdf)
+- Hijmans, R. J. (2025). Spatial Data Science with R and “terra.” R Spatial. [https://rspatial.org/](https://rspatial.org/)
+- Pebesma, E. (2025). Sf Vignettes. [https://r-spatial.github.io/sf/articles/](https://r-spatial.github.io/sf/articles/)
+- Pebesma, E., & Bivand, R. (2025, January 22). Spatial Data Science. [https://r-spatial.org/book/](https://r-spatial.org/book/)
+- Pebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R (1st ed.). CRC Press.
+
+
+::::
+:::::
 
 
 ## Private Functions
 
-XXX: [DESCRIBE PRIVATE FUNCTION USED IN THIS BOOK]
+I used several private functions to facilitate repetitive tasks. All these functions starts with my initials `pb_` and can be found in "R/helper.R"
+
+- `pb_create_folder(path)`: Check if the folder already exists at parameter "path". If not, then create the folder.
+- `pb_save_data_file(chapter_folder, object, file_name)`: Save the data file for the specified chapter folder. If the folder not exists, create it and save object as `.rds` file. the chapter folder is a folder inside the "data" folder
+
 
 ## Glossary Entries of this Chapter
 

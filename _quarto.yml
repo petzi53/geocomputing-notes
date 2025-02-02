@@ -18,6 +18,7 @@ book:
     - index.qmd
     - 01-intro.qmd
     - 02-geographic-data.qmd
+    - 03-attribute-data-operations.qmd
   appendices:
     - 96-packages-used.qmd
 
