@@ -8,6 +8,40 @@
 base::source(file = paste0(here::here(), "/R/helper.R"))
 ```
 
+## dplyr {#sec-96-dplyr}
+
+:::::: my-num-packagebox
+::: my-num-packagebox-header
+Package Profile: dplyr
+:::
+
+------------------------------------------------------------------------
+
+:::: my-num-packagebox-container
+<center>[A Grammar of Data Manipulation](https://dplyr.tidyverse.org/) [@dplyr]</center>
+
+------------------------------------------------------------------------
+
+::: {layout="[10, 30]" layout-valign="center"}
+![](img/logoi/logo-dplyr-min.png){width="176"}
+
+A fast, consistent tool for working with data frame like objects, both in memory and out of memory. {**dplyr**} is a grammar of data manipulation, providing a consistent set of verbs that help you solve the most common data manipulation challenges: 
+
+:::
+
+------------------------------------------------------------------------
+
+- `dplyr::mutate()` adds new variables that are functions of existing variables 
+- `dplyr::select()` picks variables based on their names.
+- `dplyr::filter()` picks cases based on their values. 
+- `dplyr::slice()`  subsets rows using their positions.
+- `dplyr::summarise()` reduces multiple values down to a single summary. 
+- `dplyr::arrange()` changes the ordering of the rows.
+
+::::
+::::::
+
+
 ## s2 {#sec-96-s2}
 
 :::::: my-num-packagebox

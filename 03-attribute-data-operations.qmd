@@ -9,3 +9,490 @@ base::source(file = "R/helper.R")
 
 ```
 
+## Introduction
+
+Attribute data is non-spatial information associated with geographic (geometry) data. This chapter teaches how to manipulate geographic objects based on attributes such as the names of bus stops in a vector dataset and elevations of pixels in a raster dataset.
+
+## Vector attribute manipulation
+
+Geographic vector datasets are well supported in R thanks to the {**sf**} class, which extends base R’s `data.frame`. Like data frames, `sf` objects have one column per attribute variable (such as ‘name’) and one row per observation or feature (e.g., per bus station). {**sf**} provides generics that allow `sf` objects to behave like regular data frames.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-03-sf-methods}
+: Methods for `sf` objects
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sf-methods
+
+base::library(sf) |> base::suppressPackageStartupMessages()
+utils::methods(class = "sf")
+base::detach("package:sf", unload = TRUE)
+```
+
+***
+
+Many of the generic methods (those not starting with `st_`) like `aggregate()`, `cbind()`, `merge()`, `rbind()` and `]` are for manipulating data frames. 
+
+- `rbind()`, for example, binds rows of data frames together, one ‘on top’ of the other. 
+- `$<-` creates new columns.
+::::
+:::::
+
+**A key feature of `sf` objects is that they store spatial and non-spatial data in the same way, as columns in a `data.frame`.**
+
+
+`sf` objects can also extend the {**tidyverse**} classes for data frames, `tbl_df` and `tbl`. Thus {**sf**} enables the full power of R’s data analysis capabilities to be unleashed on geographic data, whether you use base R or tidyverse functions for data analysis.
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-03-sf-vector-properties}
+: Basic properties of vector data objects
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### With geometry
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-sf-properties-with-geometry}
+: Basic properties of a `sf` object with geometry column
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sf-basic-properties
+
+utils::data("world", package = "spData")
+base::class(world)
+base::dim(world)
+skimr::skim(world)
+```
+
+::::
+:::::
+
+
+###### Without geometry
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-sf-property-without-geometry}
+: Properties of a `sf` object withput geometry column
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: sf-drop-geometry
+
+world_df = sf::st_drop_geometry(world)
+base::class(world_df)
+base::dim(world_df)
+dplyr::glimpse(world_df)
+skimr::skim(world_df)
+```
+
+::::
+:::::
+
+`world` contains ten non-geographic columns (and one geometry list column) with 177 rows representing the world’s countries. The function `sf::st_drop_geometry()` keeps only the attributes data of an `sf` object, in other words removing its geometry and convert it to a "normal" data.frame.
+
+You can see that `skimr::skim()` reproduces a warning just in the first case. `dplyr::glimpse()` would produce an error, but both listings work in the second case without problems.
+
+:::
+
+::::
+:::::
+
+::: {.callout-note #nte-03-different-geometry-column-names}
+###### Different names of the geometry column
+
+The geometry column of `sf` objects is typically called "geometry" or "geom", but any name can be used. The following command, for example, creates a geometry column named g:
+
+`sf::st_sf(base::data.frame(n = world$name_long), g = world$geom)`
+
+This enables geometries imported from spatial databases to have a variety of names such as "wkb_geometry" and "the_geom".
+:::
+
+
+
+Dropping the geometry column before working with attribute data can be useful; data manipulation processes can run faster when they work only on the attribute data and geometry columns are not always needed. For most cases, however, it makes sense to keep the geometry column, explaining why the column is ‘sticky’ (it remains after most attribute operations unless specifically dropped). Non-spatial data operations on sf objects only change an object’s geometry when appropriate (e.g., by dissolving borders between adjacent polygons following aggregation). 
+
+**Becoming skilled at geographic attribute data manipulation means becoming skilled at manipulating data frames.**
+
+
+:::::{.my-remark}
+:::{.my-remark-header}
+:::::: {#rem-03-sf-tidyverse-pitfalls}
+: {**sf**} has tidyverse compatibility with some pitfalls
+::::::
+:::
+::::{.my-remark-container}
+For many applications, the tidyverse package {**dplyr**} (see Package Profile @sec-96-dplyr) offers an effective approach for working with data frames. Tidyverse compatibility is an advantage of {**sf**} over its predecessor {**sp**}, but there are some [pitfalls to avoid](https://geocompx.github.io/geocompkg/articles/tidyverse-pitfalls.html).
+
+I have already experience with {**dplyr**} data wrangling. If there is no difference using `sf` objects or `"tbl_df` resp. `tbl` objects, I may not include these passages into this notebook.
+::::
+:::::
+
+### Vector attribute subsetting (empty)
+
+[skipped](https://r.geocompx.org/attr#vector-attribute-subsetting)
+
+### Chaining commands with pipes (empty)
+
+[skipped](https://r.geocompx.org/attr#chaining-commands-with-pipes)
+
+### Vector attribute aggregation (empty)
+
+[skipped](https://r.geocompx.org/attr#vector-attribute-aggregation)
+
+### Vector attribute joining (empty)
+
+[skipped](https://r.geocompx.org/attr#vector-attribute-joining)
+
+### Creating attributes and removing spatial information (empty)
+
+[skipped](https://r.geocompx.org/attr#vec-attr-creation)
+
+## Manipulating raster objects
+
+This section shows how raster objects work by creating them from scratch, building on Section @sec-02-intro-terra. Because of their unique structure, subsetting and other operations on raster datasets work in a different way.
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-03-create-raster-object-from-scratch}
+: Creating raster objects from scratch
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### numerical
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-03-create-numerical-raster}
+: Creating raster object with numerical data
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: create-numerical-raster
+
+elev = terra::rast(nrows = 6, ncols = 6,
+            xmin = -1.5, xmax = 1.5, ymin = -1.5, ymax = 1.5,
+            vals = 1:36)
+elev
+```
+
+***
+
+The result is a raster object with 6 rows and 6 columns (specified by the nrow and ncol arguments), and a minimum and maximum spatial extent in x and y direction (xmin, xmax, ymin, ymax). The vals argument sets the values that each cell contains: numeric data ranging from 1 to 36 in this case.
+
+
+::::
+:::::
+
+
+
+###### categorical
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-03-create-categorical-raster}
+: Creating raster object with categorical data
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: create-categorical-raster
+
+grain_order = base::c("clay", "silt", "sand")
+grain_char = base::sample(grain_order, 36, replace = TRUE)
+grain_fact = base::factor(grain_char, levels = grain_order)
+grain = terra::rast(nrows = 6, ncols = 6, 
+             xmin = -1.5, xmax = 1.5, ymin = -1.5, ymax = 1.5,
+             vals = grain_fact)
+
+grain
+```
+
+::::
+:::::
+
+:::
+
+::: {.callout-note #nte-03-stored-raster-objects}
+`elev` and `grain` are the same raster objects as stored in {**spData**} as `elev.tif` respectively as `grain.tif`.   
+
+This is helpful as I do not need to save or wrap/unwrap these objects for use in later chunk. Just loading via `<name> = terra::rast(base::system.file("raster/<name>.tif", package = "spData"))` is enough.
+:::
+
+::::
+:::::
+
+The raster object stores the corresponding look-up table or “Raster Attribute Table” (RAT) as a list of data frames, which can be viewed with `terra::cats(grain)`. Each element of this list is a layer of the raster. It is also possible to use the function terra::levels() for retrieving and adding new or replacing existing factor levels.
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-03-raster-attribute-table}
+: Raster Attribute Table (RAT)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: raster-attribute-table
+#| results: hold
+
+grain2 = terra::rast(base::system.file("raster/grain.tif", package = "spData"))
+levels(grain2) = data.frame(value = c(0, 1, 2), wetness = c("wet", "moist", "dry"))
+terra::cats(grain2)
+terra::levels(grain2)
+terra::identical(terra::cats(grain2), terra::levels(grain2))
+```
+
+::::
+:::::
+
+Categorical raster objects can also store information about the colors associated with each value using a color table. The color table is a data frame with three (red, green, blue) or four (alpha) columns, where each row relates to one value. Color tables in {**terra**} can be viewed or set with the `terra::coltab()` function. Importantly, saving a raster object with a color table to a file (e.g., GeoTIFF) will also save the color information.
+
+The following figure simulates book's Figure 3.2.. There are some differences such as that the legend is outside the graphic and in a different format.
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-03-plot-rasters}
+: Plot numerical and categorical raster object
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-plot-rasters
+#| fig-cap: "Raster datasets with numeric (left) and categorical values (right)."
+#| fig-height: 3
+
+elev = terra::rast(base::system.file("raster/elev.tif", package = "spData"))
+
+grain <- terra::rast(base::system.file("raster/grain.tif", package = "spData"))
+grain2 <-  grain 
+levels(grain2) <- data.frame(value = c(0, 1, 2), wetness = c("clay", "silt", "sand"))
+col_df <- data.frame(value = 0:2, col = c(clay = "#a52a2a", silt = "#f4a460", sand = "#bc8f8f"))
+terra::coltab(grain2) <- col_df
+
+par(mfrow = c(1, 2))
+terra::plot(elev, col = terra::map.pal("blues"))
+terra::plot(grain2)
+
+
+```
+
+::::
+:::::
+
+### Raster subsetting
+
+:::::{.my-remark}
+:::{.my-remark-header}
+:::::: {#rem-03-tidyterra}
+: Numbered Remark Title
+::::::
+:::
+::::{.my-remark-container}
+As learning about raster data (und therefore {**terra**}) is not my main focuse I will not go into details in this section. See also @rem-02-terra-use-cases.
+::::
+:::::
+
+
+Raster subsetting in the book is done with the base R operator `[`, which accepts a variety of inputs. 
+
+:::::{.my-resource}
+:::{.my-resource-header}
+:::::: {#lem-03-tidyterra}
+: New package {**tidyterra**}
+::::::
+:::
+::::{.my-resource-container}
+There is the new package {**tidyterra**} which provide common methods of the {**tidyverse**} packages for objects created with the {**terra**} package: `SpatRaster` and `SpatVector`. It also provides `geoms` for plotting these objects with {**ggplot2**}.
+::::
+:::::
+
+
+From the four possible inputs for raster data, that is
+
+- row-column indexing,
+- cell IDs,
+- coordinates, and
+- another spatial object
+
+only the first two options can be considered non-spatial operations. (For subestting spatial operations see @XXXSection4-3-1.)
+
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-03-raster-subsetting-single-layer}
+: Raster single layer subsetting with base R and {**tidyterra**}
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### base R
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-03-base-r-raster-subsetting}
+: Raster subsetting with base R operator `[`
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: base-r-raster-subsetting
+#| results: hold
+
+elev = terra::rast(base::system.file("raster/elev.tif", package = "spData"))
+
+elev[1, 1] # row 1, column 1
+elev[1] # cell ID 1
+elev[2, 1] # row 2, column 1
+```
+
+::::
+:::::
+
+
+###### {**tidyterra**}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-03-tidyterra-raster-subsetting}
+: Raster subsetting with {**tidyterra**}
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: tidyterra-raster-subsetting
+
+elev = terra::rast(base::system.file("raster/elev.tif", package = "spData"))
+
+elev |> 
+    tidyterra::slice_rows(2) |> 
+    tidyterra::slice_cols(1)
+
+elev |> 
+    tidyterra::slice_colrows(
+        rows = 2,
+        cols = 1
+    )
+```
+
+***
+
+{**tidyterra**} applies many {**dplyr**} commands to {**terra**}. The above two subsettng commands are specialized functios adapted to the raster format that are provided with {**tidyterra**} in addition to the standard {**dplyr**} functions: `slice()`, `slice_head()`, `slice_tail()`, `slice_min()`, `slice_max()`, and `slice_sample()`.
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+
+Subsetting of multi-layered raster objects will return the cell value(s) for each layer. For example, two_layers = c(grain, elev); two_layers[1] returns a data frame with one row and two columns — one for each layer. To extract all values, you can also use values().
+
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-03-raster-subsetting-multiple-layer}
+: Subsetting of multi-layered raster objects
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### base R
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-03-multi-layer-base-r-raster-subsetting}
+: Subsetting of multi-layered raster objects
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: multi-layer-base-r-raster-subsetting
+
+
+elev = terra::rast(base::system.file("raster/elev.tif", package = "spData"))
+grain = terra::rast(base::system.file("raster/grain.tif", package = "spData"))
+
+two_layers <- c(grain, elev) 
+two_layers[1]
+head(terra::values(two_layers)) # show first six values of all layers
+
+two_layers |> 
+    tidyterra::slice_colrows(
+        rows = 1,
+        cols = 1
+    )
+
+two_layers |> 
+    tidyterra::slice_head()
+```
+
+::::
+:::::
+
+
+###### header2
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-code-name-b}
+: Numbered R Code Title (Tidyverse)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: multi-layer-tidyterra-raster-subsetting
+#| eval: false
+
+elev = terra::rast(base::system.file("raster/elev.tif", package = "spData"))
+grain = terra::rast(base::system.file("raster/grain.tif", package = "spData"))
+
+two_layers <- c(grain, elev) |> 
+    
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+

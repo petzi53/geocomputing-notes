@@ -1,4 +1,4 @@
-# Geographic Data in R {#sec-chap02}
+# Geographic data in R {#sec-chap02}
 
 ```{r}
 #| label: setup
@@ -41,7 +41,7 @@ geocomputation:
     transformations, which underlies the content covered in
     [@XXXChapter7]. See: [PROJ](https://proj.org/en/stable/)
     [@evenden-2024].
--   `r glossary("GEOS")`, a planar geometry engine for operations such
+-   `r glossary("GEOSx", "GEOS")`, a planar geometry engine for operations such
     as calculating buffers and centroids on data with a projected
     `r glossary("CRS")`, covered in [@XXXChapter5]. See
     [GEOS](https://libgeos.org/) [@geoscontributors-2024].
@@ -1497,7 +1497,7 @@ Fourth, both packages have a different approach for how various functions work o
 
 Importantly, it is straightforward to convert objects from {**terra**} to {**stars**} (using `sf::st_as_stars()`) and the other way round (using `terra::rast()`). We also encourage you to read [@pebesma-2023] for the most comprehensive introduction to the {**stars**} package.
 
-### Introduction to {**terra**}
+### Introduction to {**terra**} {#sec-02-intro-terra}
 
 - The {**terra**} package supports raster objects in R. It provides an extensive set of functions to create, read, export, manipulate and process raster datasets. 
 - In addition to functions for raster data manipulation, {**terra**} provides many low-level functions that can form a foundation for developing new tools for working with raster datasets. 
@@ -1611,16 +1611,6 @@ The function `terra::dim()` didn't work for me but it should be on of the "dedic
 ::::
 :::::
 
-:::::{.my-remark}
-:::{.my-remark-header}
-:::::: {#rem-02-terra-use-cases}
-: {**terra**} package not essential for my use cases
-::::::
-:::
-::::{.my-remark-container}
-As I am mostly interested to compare parameters for different countries it seems to me that vector data are the data type I have to go with.
-::::
-:::::
 
 
 ::: {.callout-note #nte-02-terra-overview}
@@ -1768,11 +1758,11 @@ multi_rast = terra::rast(multi_raster_file)
 multi_rast
 
 pb_create_folder("data")
-pb_create_folder("data/Chapter2")
+pb_create_folder("data/chapter02")
 
 terra::writeRaster(
   multi_rast,
-  "data/Chapter2/landsat.tif",
+  "data/chapter02/landsat.tif",
   overwrite = TRUE,
   datatype = "FLT4S"
   ) 
@@ -1798,7 +1788,7 @@ terra::writeRaster(
 #| label: get-number-of-raster-layers
 
 
-multi_rast <- terra::rast("data/Chapter2/landsat.tif")
+multi_rast <- terra::rast("data/chapter02/landsat.tif")
 
 
 terra::nlyr(multi_rast)
@@ -1819,7 +1809,7 @@ terra::nlyr(multi_rast)
 ```{r}
 #| label: subset-raster-layers
 
-multi_rast <- terra::rast("data/Chapter2/landsat.tif")
+multi_rast <- terra::rast("data/chapter02/landsat.tif")
 
 multi_rast3 = terra::subset(multi_rast, 3)
 multi_rast4 = terra::subset(multi_rast, "landsat_4")
@@ -1920,7 +1910,7 @@ We will expand on CRSs and explain how to project from one CRS to another in @XX
 
 An important feature of CRSs is that they contain information about spatial units. It is good cartographic practice to add a scale bar or some other distance indicator onto maps to demonstrate the relationship between distances on the page or screen and distances on the ground. Likewise, it is important to formally specify the units in which the geometry data or cells are measured to provide context, and to ensure that subsequent calculations are done in the correct context.
 
-### Units in **sf**
+### Units in {**sf**}
 
 A novel feature of geometry data in `sf` objects is that they have **native support for units**. This means that distance, area and other geometric calculations in {**sf**} return values that come with a units attribute, defined by the units package [@units]. (See Package Profile in @sec-96-units.)
 
@@ -1994,7 +1984,7 @@ base::attributes(luxembourg_km2)
 ::::
 :::::
 
-### Units in **terra**
+### Units in {**terra**}
 
 Units are of equal importance in the case of raster data. However, so far {**sf**} is the only spatial package that supports units, meaning that people working on raster data should approach changes in the units of analysis (for example, converting pixel widths from imperial to decimal units) with care. The `my_rast` object in @cnj-02-create-spatraster-object uses a `r glossary("WGS84")` projection with decimal degrees as units. Consequently, its resolution is also given in decimal degrees, but you have to know it, since the `terra::res()` function simply returns a numeric vector. And if we used the Universal Transverse Mercator (`r glossary("UTM")`) projection, the units would change and we would have to know that the units are now in meter.
 
@@ -2017,5 +2007,18 @@ terra::res(repr) # units in meter
 
 ::::
 :::::
+
+
+:::::{.my-remark}
+:::{.my-remark-header}
+:::::: {#rem-02-terra-use-cases}
+: {**terra**} package not essential for my use cases
+::::::
+:::
+::::{.my-remark-container}
+As I am mostly interested to compare parameters for different countries it seems to me that vector data are the data type I have to go with.
+::::
+:::::
+
 
 ## Exercises
