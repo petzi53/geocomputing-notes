@@ -3,7 +3,7 @@
 ::: {.callout-note style="color: blue;"}
 #### This is work in progress
 
-I have finished about 14%. Currently I am working on Chapter 3 (Attribute data operations).
+I have finished about 18%. Currently I am working on Chapter 8 (book) resp. Chapter 9 (online version) ([Making maps with R, section layouts](https://r.geocompx.org/adv-map#layouts)).
 
 :::
 
