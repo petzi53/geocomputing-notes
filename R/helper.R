@@ -12,7 +12,7 @@
 ##            save content of stored Excel file with all sheets
 ##            as CSV snapshots and RDS objects
 ## - my_ls_region: well being ladder score line chart for regions
-
+## - my_pkgs_dl: Get number of downloads from RStudio CRAN Mirror
 
 ## glossary #####################################################
 library(glossary)
@@ -305,6 +305,36 @@ my_colors <-  function() {
     RColorBrewer::brewer.pal(12,'Set3')
   )
 }
+
+
+##### my_pkgs_dl ###########################################
+# my_pkgs_dl: Get number of downloads from RStudio CRAN Mirror
+# Purpose:
+# Compare popularity of different packages
+# Author: Peter Baumgartner
+# pkgs = character vector of package names
+# period = "last-day" "last-week", "last-month"
+# days: period days = 1, 7, 30
+# returns: tibble with packages sorted by download figures
+# I have used the function in my notes on "Statistics with R"
+# # See: https://bookdown.org/pbaumgartner/swr-harris/
+
+my_pkgs_dl <-  function(pkgs, period = "last-week", days = 7) {
+  dl_pkgs <- cranlogs::cran_downloads(when = period, packages = pkgs)
+
+  start_date = base::min(dl_pkgs$date)
+  end_date = base::max(dl_pkgs$date)
+
+  dl_pkgs |>
+    dplyr::group_by(package) |>
+    dplyr::summarize(average = trunc(sum(count) / days)) |>
+    dplyr::arrange(desc(average)) |>
+    dplyr::mutate(
+      from = start_date,
+      to = end_date
+    )
+}
+
 
 ## END
 

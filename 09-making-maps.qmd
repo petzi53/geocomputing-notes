@@ -1,6 +1,6 @@
 ---
 execute:
-  cache: false
+  cache: true
   echo: true
   code-fold: true
 ---
@@ -26,21 +26,30 @@ Chapter section list
 :::
 
 ::: my-objectives-container
-TEXT
+
+1. **Introduction** (@sec-09-introduction)
+2. **Static Maps** are the most common type of visual output from geocomputation. This is therefore the longest and most detailed part of this chapter (@sec-09-static-maps).
+    - **Scales** control how the values are represented on the map and in the legend, and they largely depend on the selected visual variable (@sec-09-scales). We can distinguish between interval (@sec-09-interval-scales), continuous (@sec-09-continuous-scales) and categorical scales (@sec-09-categorical-scales) applying categorical, sequential or diverging palettes (@sec-09-scale-summary).
+    - **Legends** have a certain title, position, orientation to place it on the graphics. But you can also disable legend (@sec-09-legends).
+    - **Layouts** refer to the combination of all map elements into a cohesive map (@sec-09-layouts).
+    - **Faceted maps** are composed of many maps arranged side-by-side, and sometimes stacked vertically. Facets enable the visualization of how spatial relationships change with respect to another variable, such as time (@sec-09-faceted-maps). They can also used with special parameters for animated maps (@sec-09-animated-maps).
+    - **Inset maps** are smaller maps rendered within or next to the main map (@sec-09-inset-maps). It is a complex chapter which uses details of the {**grid**} package like `grid::viewport()`, `grid::grid.newpage()` and the `sf::bbox()` function to return the bounding of a simple feature (set). As I do not need inset maps at the moment for my own research I skipped this section.
+3. **Animated maps** show how spatial distributions of variables change (e.g., over time) sometimes better than tiny faceted maps (@sec-09-animated-maps).
+4. **Interactive maps** is the next level to explore data. Interactivity can take many forms: Starting with interactive labels through pop-ups when you hover over the region or click with the mouse, continuing with the ability to pan around and zoom into any part of a geographic dataset overlaid on a ‘web map’ to show context to the more advanced level of the ability to tilt and rotate maps (@sec-09-interactive-maps).
 :::
 :::::
 ::::::
 
-## Introduction
+## Introduction {#sec-09-introduction}
 
 I am following here Chapter 9 [Making Maps with
-R](https://r.geocompx.org/adv-map), explaining mainly the use of
+R](https://r.geocompx.org/adv-map) respectively chapter 8 of the printed book 2nd edition, explaining mainly the use of
 {**tmap**}. In addition to the example and code demonstrations I will
 also use my own `r glossary("WHR")` dataset.
 
 To facilitate working with the WHR dataset I have joined the ladder
 score values in a new column "WHR" with the `world` dataset of
-{**tmap**} and stored as `world_whr.rds` in "data/Chapter9"
+{**tmap**} and stored as `world_whr_2024.rds` in "data/chapter09"
 
 :::::: my-r-code
 :::: my-r-code-header
@@ -61,20 +70,24 @@ whr_2024 <-  base::readRDS("data/chapter09/whr_final_2024.rds") |>
 
 World <- tmap::World
 
-world_whr <- dplyr::left_join(
+world_whr_2024 <- dplyr::left_join(
     World,
     whr_2024,
     dplyr::join_by(iso_a3 == iso3)
 )
 
-my_save_data_file("chapter09", world_whr, "world_whr.rds")
+my_save_data_file("chapter09", world_whr_2024, "world_whr_2024.rds")
 
-dplyr::glimpse(world_whr)
+dplyr::glimpse(world_whr_2024)
 ```
 :::
 ::::::
 
-## Static maps
+## Static maps {#sec-09-static-maps}
+
+Static maps are the most common type of visual output from geocomputation. They are usually stored in standard formats including `.png` and `.pdf` for graphical raster and vector outputs, respectively. Initially, static maps were the only type of maps that R could produce. Things have advanced very much in the last decade, and many map-making techniques, functions, and packages have been developed since then. However, despite the innovation of interactive mapping, static plotting was still the emphasis of geographic data visualization in R.
+
+The generic `base::plot()` function is often the fastest way to create static maps from vector and raster spatial objects. Sometimes, simplicity and speed are priorities, especially during the development phase of a project, and this is where `base::plot()` excels. The base R approach is also extensible, with `base::plot()` offering dozens of arguments. Another approach is the {**grid**} package which allows low-level control of static maps. But these notes focus on {**tmap**} and emphasizes the essential aesthetic and layout options.
 
 ### {tmap} basics
 
@@ -142,15 +155,13 @@ tmap::tmap_arrange(nz1, nz2, nz3)
 #| fig-cap: "Shape of world countries plotted with fill and border layers added using tmap functions."
 
 
-world_whr <- base::readRDS("data/chapter09/world_whr.rds")
+world_whr_2024 <- base::readRDS("data/chapter09/world_whr_2024.rds")
 
-(
-    world_map <- world_whr |> 
-        tmap::tm_shape() +
-        tmap::tm_fill() +
-        tmap::tm_borders() +
-        tmap::tm_crs("+proj=robin")
-)    
+world_whr_2024 |> 
+      tmap::tm_shape() +
+      tmap::tm_fill() +
+      tmap::tm_borders() +
+      tmap::tm_crs("+proj=robin")
 ```
 :::
 ::::::
@@ -171,17 +182,15 @@ world_whr <- base::readRDS("data/chapter09/world_whr.rds")
 #| echo: fenced 
 #| fig-cap: "World Happiness Report Ladder scores"
 
-(
-    whr_map <- # works better with Antarctica and earth_boundary = TRUE
-        tmap::tm_shape(world_whr) +
-        tmap::tm_polygons("WHR") +
-        tmap::tm_crs("+proj=robin") +
-        # tmap::tm_title("World Happiness") +
-        tmap::tm_layout(
-            earth_boundary = FALSE, 
-            frame = FALSE
-            )
-)
+# works better with Antarctica and earth_boundary = TRUE
+tmap::tm_shape(world_whr_2024) +
+tmap::tm_polygons("WHR") +
+tmap::tm_crs("+proj=robin") +
+# tmap::tm_title("World Happiness") +
+tmap::tm_layout(
+    earth_boundary = FALSE, 
+    frame = FALSE
+    )
 ```
 :::
 ::::::
@@ -269,12 +278,12 @@ tmap::tmap_arrange(ma1, ma2, ma3, ma4, ma5, ma6)
 #| label: fig-whr-visualize-values
 #| fig-cap: "Impact of changing commonly used fill and border aesthetics to fixed values."
 
-wrld1 = tmap::tm_shape(world_whr) + tmap::tm_polygons(fill = "red")
-wrld2 = tmap::tm_shape(world_whr) + tmap::tm_polygons(fill = "red", fill_alpha = 0.3)
-wrld3 = tmap::tm_shape(world_whr) + tmap::tm_polygons(col = "blue")
-wrld4 = tmap::tm_shape(world_whr) + tmap::tm_polygons(lwd = 3)
-wrld5 = tmap::tm_shape(world_whr) + tmap::tm_polygons(lty = 2)
-wrld6 = tmap::tm_shape(world_whr) + tmap::tm_polygons(fill = "red", fill_alpha = 0.3,
+wrld1 = tmap::tm_shape(world_whr_2024) + tmap::tm_polygons(fill = "red")
+wrld2 = tmap::tm_shape(world_whr_2024) + tmap::tm_polygons(fill = "red", fill_alpha = 0.3)
+wrld3 = tmap::tm_shape(world_whr_2024) + tmap::tm_polygons(col = "blue")
+wrld4 = tmap::tm_shape(world_whr_2024) + tmap::tm_polygons(lwd = 3)
+wrld5 = tmap::tm_shape(world_whr_2024) + tmap::tm_polygons(lty = 2)
+wrld6 = tmap::tm_shape(world_whr_2024) + tmap::tm_polygons(fill = "red", fill_alpha = 0.3,
                                  col = "blue", lwd = 3, lty = 2)
 tmap::tmap_arrange(wrld1, wrld2, wrld3, wrld4, wrld5, wrld6)
 ```
@@ -331,10 +340,10 @@ tmap::tm_shape(nz) + tmap::tm_fill(fill = "Land_area")
 ::: my-r-code-container
 ```{r}
 #| label: fig-visualize-whr-variables
-#| fig-cap: "Fill countires of the world with well-being values of HPI and WHR"
+#| fig-cap: "Fill countries of the world with well-being values of HPI and WHR"
 
-well_being_HPI <- tmap::tm_shape(world_whr) + tmap::tm_fill(fill = "well_being")
-well_being_WHR <- tmap::tm_shape(world_whr) + tmap::tm_fill(fill = "WHR")
+well_being_HPI <- tmap::tm_shape(world_whr_2024) + tmap::tm_fill(fill = "well_being")
+well_being_WHR <- tmap::tm_shape(world_whr_2024) + tmap::tm_fill(fill = "WHR")
 
 tmap::tmap_arrange(well_being_HPI, well_being_WHR)
 ```
@@ -466,7 +475,7 @@ The value for the example color scheme is in the book `BuGn`. But this value res
 #| label: fig-settings-pretty-breaks
 #| fig-cap: "GDP per capita with standard ('pretty') breaks" 
 
-world_no_ata <- world_whr |> 
+world_no_ata <- world_whr_2024 |> 
   dplyr::filter(name != "Antarctica")
 
 tmap::tm_shape(world_no_ata) + 
@@ -504,7 +513,7 @@ Because of it extraordinary GDP per capita value (200,000 US $) I have removed t
 #| fig-cap: "GDP per capita with breaks defined" 
 
 
-tmap::tm_shape(world_whr) + 
+tmap::tm_shape(world_whr_2024) + 
   tmap::tm_polygons(
       fill = "gdp_cap_est",
       fill.legend = tmap::tm_legend(
@@ -539,7 +548,7 @@ I contrast to the previous example I have additionally I have set the aspect rat
 #| fig-asp: 0.7
 #| fig-cap: "GDP per capita with a specified number of breaks (n = 10)" 
 
-tmap::tm_shape(world_whr) + 
+tmap::tm_shape(world_whr_2024) + 
   tmap::tm_polygons(
      fill = "gdp_cap_est",
      fill.scale = tmap::tm_scale(n = 10),
@@ -573,7 +582,7 @@ If the data would have missing values I had to choose another color palette or t
 #| fig-asp: 0.5
 
 
-world_no_ata <- world_whr |> 
+world_no_ata <- world_whr_2024 |> 
   dplyr::filter(name != "Antarctica")
 
 tmap::tm_shape(world_no_ata) + 
@@ -612,7 +621,7 @@ In this example you can't see the only red country Luxembourg with over 100,000 
 All of the above arguments (`breaks`, `n`, and `values`) also work for other types of visual variables. For example, `values` expects a vector of colors or a palette name for `fill.scale` or `col.scale`, a vector of sizes for `size.scale`, or a vector of symbols for `shape.scale`.
 :::
 
-#### Interval scales
+#### Interval scales {#sec-09-interval-scales}
 
 The `tmap::tm_scale_intervals()` function splits the input data values into a set of intervals. In addition to setting breaks manually, {**tmap**} allows users to specify algorithms to create breaks with the style argument automatically. The default is `tmap::tm_scale_intervals(style = "pretty")`, which rounds breaks into whole numbers where possible and spaces them evenly.
 
@@ -703,7 +712,7 @@ tmap::tmap_arrange(nz_int1, nz_int2, nz_int3, nz_int4, nz_int5)
 
 Here I have added the interval style for each example as annotation. I couldn't find an annotation function, so I had used `tmap::tm_credits()`. 
 
-Note also the different color palette in the last example (style = "log10_pretty"). I have called `cols4all::c4a_gui()` from the console, set the number of colors to 3 and looked for a palette with blue and this reddish color at the high end.
+Note also the different color palette in the last example `style = "log10_pretty"`. I have called `cols4all::c4a_gui()` from the console, set the number of colors to 3 and looked for a palette with blue and this reddish color at the high end (`brewer.bu_pu`).
 ::::
 :::::
 
@@ -723,7 +732,7 @@ Note also the different color palette in the last example (style = "log10_pretty
 #| fig-asp: 0.5
 
 
-tmap::tm_shape(world_whr) + 
+tmap::tm_shape(world_whr_2024) + 
   tmap::tm_polygons(
     fill = "WHR",
     fill.scale = tmap::tm_scale_intervals(
@@ -758,7 +767,7 @@ Choosing the "matplotlib.rainbow" color palette helps to distinguish the differe
 #| fig-cap: "Set interval scale for WHR ladder scores using `style = 'equal'`."
 #| fig-asp: 0.5
 
-tmap::tm_shape(world_whr) + 
+tmap::tm_shape(world_whr_2024) + 
   tmap::tm_polygons(
     fill = "WHR",
     fill.scale = tmap::tm_scale_intervals(
@@ -791,7 +800,7 @@ Here we get categories with ugly boundaries. It does not have an advantage to th
 #| fig-cap: "Set interval scale for WHR ladder scores using the `style = 'equal'` with 12 breaks."
 #| fig-asp: 0.5
 
-tmap::tm_shape(world_whr) + 
+tmap::tm_shape(world_whr_2024) + 
   tmap::tm_polygons(
     fill = "WHR",
     fill.scale = tmap::tm_scale_intervals(
@@ -829,7 +838,7 @@ The "cols4all.friendly13" scale has 13 different colors, but for me there are tw
 #| fig-cap: "Set interval scale for WHR ladder scores using `style = 'quantile'`."
 #| fig-asp: 0.5
 
-tmap::tm_shape(world_whr) + 
+tmap::tm_shape(world_whr_2024) + 
   tmap::tm_polygons(
     fill = "WHR",
     fill.scale = tmap::tm_scale_intervals(
@@ -871,7 +880,7 @@ Sure this is a very coarse classification but it gives an idea about the distrib
 #| fig-cap: "Set interval scale for WHR ladder scores using `style = 'quantile'`."
 #| fig-asp: 0.5
 
-tmap::tm_shape(world_whr) + 
+tmap::tm_shape(world_whr_2024) + 
   tmap::tm_polygons(
     fill = "WHR",
     fill.scale = tmap::tm_scale_intervals(
@@ -905,7 +914,7 @@ Because of the many colors the interpretation is not easy. But you get a good id
 #| fig-cap: "Set interval scale for WHR ladder scores using `style = 'log10_pretty'` for country populations"
 #| fig-asp: 0.5
 
-tmap::tm_shape(world_whr) + 
+tmap::tm_shape(world_whr_2024) + 
   tmap::tm_polygons(
     fill = "pop_est",
     fill.scale = tmap::tm_scale_intervals(
@@ -933,7 +942,7 @@ This is not a sensible map. I think `style = 'log10_pretty'` is better suited fo
 ::::
 :::::
 
-#### Continuous scales
+#### Continuous scales {#sec-09-continuous-scales}
 
 The `tmap::tm_scale_continuous()` function is used for continuous data. In case of variables with a skewed distribution, you can also use its variants – `tmap::tm_scale_continuous_log()` and `tm_scale_continuous_log1p()`. 
 
@@ -1068,7 +1077,7 @@ Without `width = 50` the scale would be auto scaled. The width is calculated fro
 ::::
 :::::
 
-#### Categorical scales
+#### Categorical scales {#sec-09-categorical-scales}
 
 Categorical palettes consist of easily distinguishable colors and are most appropriate for categorical data without any particular order such as state names or land cover classes. Colors should be intuitive: rivers should be blue, for example, and pastures green. Avoid too many categories: maps with large legends and many colors can be uninterpretable.
 
@@ -1197,7 +1206,7 @@ tmap::tm_shape(world_no_ata) +
 :::::
 
 
-#### Summary
+#### Scale summary {#sec-09-scale-summary}
 
 ![Examples of categorical, sequential and diverging palettes.](img/09-colpal-examples.png){#fig-09-colpal-examples
 fig-alt="Examples of categorical, sequential and diverging palettes." fig-align="center" 
@@ -1209,7 +1218,7 @@ There are two important principles for consideration when working with colors: p
 
 ### Legends {#sec-09-legends}
 
-After we decided on our visual variable and its properties, we should move our attention toward the related map legend style. Using the tm_legend() function, we may change its title, position, orientation, or even disable it. The most important argument in this function is title, which sets the title of the associated legend. In general, a map legend title should provide two pieces of information: what the legend represents and what the units are of the presented variable. The following code chunk demonstrates this functionality by providing a more attractive name than the variable name Land_area (note the use of expression() to create superscript text):
+After we decided on our visual variable and its properties, we should move our attention toward the related map legend style. Using the `tmap::tm_legend()` function, we may change its title, position, orientation, or even disable it. The most important argument in this function is title, which sets the title of the associated legend. In general, a map legend title should provide two pieces of information: what the legend represents and what the units are of the presented variable. The following code chunk demonstrates this functionality by providing a more attractive name than the variable name "Land_area" (note the use of `base::expression()` to create superscript text).
 
 ::: {.my-code-collection}
 :::: {.my-code-collection-header}
@@ -1304,25 +1313,447 @@ Alternatively, we may just provide a vector of two values (or two numbers betwee
 
 ### Layouts {#sec-09-layouts}
 
+The map layout refers to the combination of all map elements into a cohesive map. Map elements include among others 
 
-## Experiments (unfinished)
+- the objects to be mapped, 
+- the map grid (`tmap::tm_graticules()`, `tmap::tm_grid()`), 
+- the north arrow or compass (`tmap::tm_compass()`),
+- the scale bar (`tmap::tm_scalebar()`), 
+- the title (`tmap::tm_title()`), 
+- the logo (`tmap::tm_logo()`),
+- credits (`tmap::tm_credits()`), could also used for annotations, and 
+- margins.
+
+The color settings covered in the previous section relate to the palette and breakpoints used to affect how the map looks. Both may result in subtle changes that can have an equally large impact on the impression left by your maps.
+
+#### Graticules and grid
+
+::: {.callout-note}
+###### Graticules versus Grid
+
+- `tmap::tm_grid()` is used to draw grid lines based on the projection of the input data, e.g. its role is to represent the input data’s coordinates.
+- `tm_graticules()` is used to draw lines of latitude (parallels) and longitude (meridians) in degrees, providing a geographic reference regardless of the data's projection.
+
+See for details: [Grids and graticules in the tmap package](https://geocompx.org/post/2019/tmap-grid/)
+
+:::
+
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-09-color-setting-whr-ladder-scores}
-: Special color settings for WHR ladder scores 
+:::::: {#cnj-09-graticules-versus-grid}
+: Difference between graticules and grid
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: fig-color-setting-whr-ladder-scores
-#| fig-cap: "Choosing specialized color paletted to notice visually better different WHR ladder scores. Additionally I have changed the color for `NA`s. Top: Using `matplotlib.rainbow` scale. Bottom: Using the standard `blues` scale."
-#| layout-ncol: 1
+#| label: fig-graticules-versus-grid
+#| fig-cap: "Using `tmap::tm_grid()` (left) and using `tmap::tm_graticules() with the degree sign (right)"
+
+nz01 <- tmap::tm_shape(nz) + 
+  tmap::tm_polygons() +
+  tmap::tm_grid()
+
+nz02 <- tmap::tm_shape(nz) + 
+  tmap::tm_polygons() +
+  tmap::tm_graticules()
+
+tmap::tmap_arrange(nz01, nz02)
+```
+
+::::
+:::::
+
+#### Components
+
+Components are non-spatial parts of the plots:
+
+- the north arrow or compass (`tmap::tm_compass()`),
+- the scale bar (`tmap::tm_scalebar()`), 
+- the title (`tmap::tm_title()`), 
+- the logo (`tmap::tm_logo()`),
+- credits (`tmap::tm_credits()`), could also used for annotations, and 
+
+See also: [tmap basics: components](https://r-tmap.github.io/tmap/articles/basics_components).
 
 
-tmap::tmap_mode("view")
-wld_whr1 <- tmap::tm_shape(world_whr) + 
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-09-layout-components}
+: Showing layout components
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-layout-components
+#| fig-cap: "New Zealand map with additonal layout components: title, compass, scale bar, credits and logo"
+
+tmap::tm_shape(nz) + 
+  tmap::tm_polygons() +
+  # tmap::tm_graticules() +
+  tmap::tm_compass(type = "8star", position = c("left", "top")) +
+  tmap::tm_scalebar(breaks = c(0, 100, 200), text.size = 1, position = c("left", "top")) +
+  tmap::tm_title("New Zealand") +
+  tmap::tm_logo(base::system.file("help", "figures", "logo.png", package = "tmap")) +
+  tmap::tm_credits("Source: https://www.stats.govt.nz/")
+```
+
+::::
+:::::
+
+#### Layout settings
+
+{**tmap**} also allows a wide variety of layout settings to be changed. To delve into the meaning of all this parameters call the appropriate help file with `?tmap::tm_layout`. The following huge list gives you a first impression of the many possible settings.  
+
+```{r}
+#| label: show-layout-args
+base::args(tmap::tm_layout)
+```
+
+
+Some of the above list of arguments are used in the following graphics:
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-09-layout-settings}
+: Examples for different arguments for layout settings
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-layout-settings
+#| fig-cap: "Examples for different arguments for layout settings. Changing the overall scale of the map to `scale = 4` (left), setting the background color `bg.color = 'lightblue'` (center) and removing the border around the graph with `frame = FALSE`"
+
+map_nz <- tmap::tm_shape(nz) + tmap::tm_polygons()
+
+map_nz1 <- map_nz + tmap::tm_layout(scale = 4)
+map_nz2 <- map_nz + tmap::tm_layout(bg.color = "lightblue")
+map_nz3 <- map_nz + tmap::tm_layout(frame = FALSE)
+
+tmap::tmap_arrange(map_nz1, map_nz2, map_nz3)
+```
+
+::::
+:::::
+
+A helpful function for designing a specific layout is `tmap::tmap_design_mode()`. When the so-called "design mode" is enabled, inner and outer margins, legend position, and aspect ratio are shown explicitly in plot mode. Also, information about aspect ratios is printed in the console. This function sets the global option `tmap.design.mode`. It can be used as toggle function without arguments.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-09-design-mode}
+: Turning design mode on/off to check and change specific layout options
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-desing-mode
+#| results: hold
+#| fig-cap: "Turning on/off the design mode to check and change specific layout options."
+
+tmap::tmap_design_mode()
+map_nz
+tmap::tmap_design_mode()
+```
+
+***
+
+The desing mode is especially valuable if you want to change the aspect ratio to remove white space around the figure.
+::::
+:::::
+
+
+:::::{.my-resource}
+:::{.my-resource-header}
+:::::: {#lem-09-layout-settings}
+: Resources for changing layout settings in {**tmap**}
+::::::
+:::
+::::{.my-resource-container}
+
+- {**tmap**} [basics: layout](https://r-tmap.github.io/tmap/articles/basics_layout)
+- {**tmap**} [advanced: margins and aspect ratio](https://r-tmap.github.io/tmap/articles/adv_margins)
+- {**tmap**} [advanced: options](https://r-tmap.github.io/tmap/articles/adv_options)
+::::
+:::::
+
+### Faceted maps {#sec-09-faceted-maps}
+
+Faceted maps are composed of many maps arranged side-by-side, and sometimes stacked vertically. Facets enable the visualization of how spatial relationships change with respect to another variable, such as time. The changing populations of settlements, for example, can be represented in a faceted map with each panel representing the population at a particular moment in time.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-09-faceted-maps-urban-agglo}
+: Faceted maps
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-faceted-maps-urban-agglo
+#| fig-cap: "Faceted map showing the top 30 largest urban agglomerations from 1970 to 2030 based on population projections by the United Nations."
+
+urb_1950_2035 <- spData::urban_agglomerations
+world <- tmap::World
+
+urb_1970_2030 <- urb_1950_2035 |> 
+   dplyr::filter(year %in% c(1970, 1990, 2010, 2030))
+
+tmap::tm_shape(world) +
+  tmap::tm_polygons(fill = "white") +
+  tmap::tm_shape(urb_1970_2030) +
+  tmap::tm_symbols(
+    fill = "red", 
+    col = "black",
+    size = "population_millions",
+    size.legend = tmap::tm_legend(
+      title = "Urban populations in million")
+    ) +
+  tmap::tm_facets_wrap(by = "year", nrow = 2) +
+  tmap::tm_layout(
+    legend.orientation = "landscape",
+    legend.position = tmap::tm_pos_out(
+      cell.h = "center",
+      cell.v = "bottom"
+    )
+  )
+  
+```
+***
+
+::: {.callout-note}
+###### How to change the legend title?
+
+I just learned that the legend title has to be changed with the argument that calls the database column. In this case it is `size = "population_millions"`, therefore I had to use `size.legend = tmap::tm_legend()` (and not `size.legend = tmap::tm_legend()` as I tried all the time!)
+
+Revising my notes I learned that the first paragraph in (@sec-09-scales) stated exactly this procedure: But `fill.scale`, `size.scale` does not only control how the selected visual variable is presented but also the legend title.
+
+:::
+
+::::
+:::::
+
+The preceding code chunk demonstrates key features of faceted maps created using the `tmap::tm_facets_wrap()` function:
+
+- Shapes that do not have a facet variable are repeated (countries in world in this case)
+- The `by` argument which varies depending on a variable ("year" in this case)
+- The `nrow/ncol` setting specifying the number of rows and columns that facets should be arranged into
+
+Alternatively, it is possible to use the `tmap::tm_facets_grid()` function that allows to have facets based on up to three different variables: one for rows, one for columns, and possibly one for pages.
+
+In addition to their utility for showing changing spatial relationships, faceted maps are also useful as the foundation for animated maps (see @sec-09-animated-maps).
+
+### Inset maps (empty) {#sec-09-inset-maps}
+
+An inset map is a smaller map rendered within or next to the main map. It could serve many different purposes, including providing a context or bringing some non-contiguous regions closer to ease their comparison. They could be also used to focus on a smaller area in more detail or to cover the same area as the map, but representing a different topic.
+
+## Animated maps {#sec-09-animated-maps}
+
+### Introduction
+
+Faceted maps, described in Section (@sec-09-faceted-maps), can show how spatial distributions of variables change (e.g., over time), but the approach has disadvantages. Facets become tiny when there are many of them. Furthermore, the fact that each facet is physically separated on the screen or page means that subtle differences between facets can be hard to detect.
+
+Animated maps solve these issues. Although they depend on digital publication, this is becoming less of an issue as more and more content moves online. Animated maps can still enhance paper reports: you can always link readers to a webpage containing an animated (or interactive) version of a printed map to help make it come alive.
+
+### Comparing downloads
+
+There are several animation packages, including {**tmap**} which includes with `tmap::tmap_animation()` a specialized function for geospatial animations.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-ID-text}
+: Comparing downloads of several animation packages
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: download-numbers-animation-packages
+
+my_pkgs_dl(
+  pkgs = c(
+    "tmap", 
+    "gganimate", 
+    "plotly", 
+    "animation", 
+    "animint2", 
+    "loon", 
+    "tweenR"),
+  period = "last-month", 
+  days = 30
+)
+```
+
+***
+
+I have no much experience with animations packages. But it is evident for me that the first three are very important:
+
+- {**plotly**): I have already started to learn {**plotly**} and produced some [personal notes](https://bookdown.org/pbaumgartner/learning-plotly/). I think I will use it to get more information out of map graphics via interactivity, for instance moving the cursor over the map and showing the name of the country and/or some vital statistics.
+- {**gganimate**} is important because it is fully compatible with {**ggplot2**} and it can be used for specifying transitions and animations in a flexible and extensible way. But at the moment (2025-05-22)
+ I do not have any experience with this package.
+
+
+::::
+:::::
+
+Here I will concentrate on {**tmap**}.
+
+### Ladder score
+
+Instead of reproducing the book's example, I will try to use the `r glossary("WHR")` dataset. I want to see the changes over time for the `r glossary("cantril ladder")` score of the countries. My main question is: What does an animation of the well-being scores looks like and is it valuable graphical representation to understand the data better?
+
+As a tempalte for my own code I am going to use the animated map showing the [top 30 largest urban agglomerations from 1950 to 2030](https://github.com/geocompx/geocompr/blob/main/code/09-urban-animation.R) based on population projects by the United Nations. 
+
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-09-faceted-maps-for-animation}
+: Producing faceted maps for the animation
+::::::
+:::
+::::{.my-r-code-container}
+
+<center>**Run this code chunk manually if the file still needs to be downloaded.**</center>
+
+```{r}
+#| label: faceted-maps-world-whr
+#| eval: false
+
+whr_2011_2024 <- base::readRDS("data/chapter09/whr_final.rds") |> 
+  dplyr::filter(wb_group_name == "World") |> 
+  dplyr::select(1:3, 6)
+
+world_map_countries <- base::readRDS("data/chapter09/world_map2.rds") |> 
+  tibble::as_tibble() |> 
+  sf::st_as_sf() |> 
+  dplyr::rename(iso3 = adm0_a3, name = admin) |> 
+  dplyr::select(iso3, name)
+
+my_save_data_file("chapter09", world_map_countries, "world_map_countries.rds")
+
+world_whr_2011_2024 <- 
+  dplyr::left_join(
+    whr_2011_2024,
+    world_map_countries,
+    dplyr::join_by(iso3 == iso3)
+  ) |> 
+  sf::st_as_sf()
+
+m_save <- tmap::tm_shape(world_whr_2011_2024) +
   tmap::tm_polygons(
-    fill = "WHR", 
+    fill = "ladder_score", 
+    col = "black",
+    fill.scale = tmap::tm_scale(
+       values = "matplotlib.rainbow"
+       ),
+    fill.legend = tmap::tm_legend(title = "Well-being Score"),
+    fill.free = FALSE
+    ) +
+  tmap::tm_facets_wrap(by = "year", nrow = 1, ncol = 1, free.coords = FALSE) +
+  tmap::tm_layout(
+    legend.orientation = "landscape",
+    legend.position = tmap::tm_pos_out("center", "bottom")
+  ) 
+
+tmap::tmap_animation(
+  tm = m_save, 
+  filename = "data/chapter09/ladder_score.gif",
+  width = 1200, 
+  height = 800,
+  delay = 800,
+  asp = 1.8,
+  outer.margins = 0)
+
+
+```
+
+***
+
+<center>(*For this R code chunk is no output available*)</center>
+
+::::
+:::::
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-09-run-animation}
+: Run the animation
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-run-animation
+#| fig-cap: "Show well-being country scores over the years 2011-2024 (2013 is missing). Higher values are higher happiness."
+
+magick::image_read("data/chapter09/ladder_score.gif")
+```
+
+***
+
+Wait some time for seeing the first change. I have set `delay = 800` to provide time for inspecting each year. But even with this long time the result is not very satisfying: It is difficult to get a better understanding about the trends. What I would need is to choose when to change to get which year and this option combined with the interactive inspection of data by hovering the mouse pointer over the map.
+::::
+:::::
+
+## Interactive maps {#sec-09-interactive-maps}
+
+### Introduction
+
+We will explore how to make slippy maps with {**tmap**} (the syntax of which we have already learned), {**mapview**}, {**mapdeck**} and finally with the very popular {**leaflet**} (which provides low-level control over interactive maps and has many supporting packages).
+
+:::::{.my-resource}
+:::{.my-resource-header}
+:::::: {#lem-09-leaflet-ecosphere}
+: Leaflet and packages extending its function (Leaflet ecosphere)
+::::::
+:::
+::::{.my-resource-container}
+I just learned that there are many packages that extend the functionality of {**leafelet**}. In alphabetical order:
+
+- {**leafem**}: {**leaflet**} extension for {**mapview**}
+- {**leafgl**}: High-performance 'WebGL' rendering for {**leaflet**}
+- {**leaflegend**}: Add custom legends to {**leaflet**} maps
+- {**leaflet**}: Create interactive web maps with the JavaScript 'leaflet' library
+- {**leaflet.extras**}: Extra functionality for {**leaflet**}
+- {**leaflet.providers**}: Leaflet providers
+- {**leafpop**}: Include tables, images and graphs in {**leaflet**} pop-ups
+- {**leafsync**}: Small multiples (facets) for {**leaflet**} web maps
+
+
+::::
+:::::
+
+### Preparing data
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-09-prepare-leaflet-data}
+: Prepare data for calling leaflet WHR 2024 data
+::::::
+:::
+::::{.my-r-code-container}
+
+<center>**Run this code chunk manually if the file still needs to be downloaded.**</center>
+
+```{r}
+#| label: whr-2024-tmap-view
+#| eval: false
+
+whr_2024 <- base::readRDS("data/chapter09/whr_final.rds") |> 
+  dplyr::filter(
+    wb_group_name == "World" & year == 2024) |> 
+  dplyr::select(1:3, 6)
+
+world_map_countries <- base::readRDS("data/chapter09/world_map_countries.rds")  
+
+world_whr_2024 <- 
+  dplyr::left_join(
+    whr_2024,
+    world_map_countries,
+    dplyr::join_by(iso3 == iso3)
+  ) |> 
+  sf::st_as_sf()
+
+leaflet_whr_2024 <- tmap::tm_shape(world_whr_2024) + 
+  tmap::tm_polygons(
+    fill = "ladder_score", 
     id = "name", 
     hover = TRUE,
     fill.scale = tmap::tm_scale(
@@ -1330,37 +1761,28 @@ wld_whr1 <- tmap::tm_shape(world_whr) +
        value.na = "yellow")
      )
 
-wld_whr2 <- tmap::tm_shape(world_whr) + 
-  tmap::tm_polygons(fill = "WHR",
-     fill.scale = tmap::tm_scale(
-       value.na = "yellow")
-     ) 
+my_save_data_file("chapter09", leaflet_whr_2024, "leaflet_whr_2024.rds")
 
-tmap::tmap_arrange(wld_whr1, wld_whr2)
-
-tmap::tmap_mode("plot")
 ```
 
 ***
 
-The `matplotlib.rainbow` palette is very helpful to distinguish the differences. It is much better than the standard "blues" version.
+<center>(*For this R code chunk is no output available*)</center>
 
-
+Hovering about the menu "paper pile" you can choose the kind of background map. The background labels appear whenever there are no data for countries and the map is resized to greater details. But my specific yellow color does not work for NA's countries as they all appear with a gray background.
 ::::
 :::::
 
+### Applying {**leaflet**} via {**tmap**}
 
-
-
-
-
+A unique feature of {**tmap**} is its ability to create static and interactive maps using the same code. Maps can be viewed interactively at any point by switching to view mode, using the command `tmap::tmap_mode("view")`. This should be the same as `tmap::tmap_leaflet(data, show  = TRUE)` with the advantage that you can specify to show or hide the map and that you don't need to place the code to return to plot mode with `tmap::tmap_mode("plot")`. 
 
 ::: {.my-code-collection}
 :::: {.my-code-collection-header}
 ::::: {.my-code-collection-icon}
 :::::
-:::::: {#exm-ID}
-: Title for code collection
+:::::: {#exm-09-apply-leaflet}
+: Apply {leaflet} via {tmap} with appropriate parameters
 ::::::
 
 ::::
@@ -1369,132 +1791,135 @@ The `matplotlib.rainbow` palette is very helpful to distinguish the differences.
 
 ::: {.panel-tabset}
 
-###### header1
+###### Standard Map WHR 2024
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-code-name-a}
-: Numbered R Code Title (Original)
+:::::: {#cnj-09-apply-leaflet-via-tmap}
+: Map of well-being scores in 2024
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: text-ax
-#| eval: false
+#| label: fig-leaflet-via-tmap
+#| message: false
+#| results: hold
+#| fig-cap: "Interactive map of the well-being data in 2024"
 
-# tmap::tmap_design_mode()
+leaflet_whr_2024 <- base::readRDS("data/chapter09/leaflet_whr_2024.rds")
 
-World <- tmap::World
-tmap::tm_shape(World) + 
-  tmap::tm_crs("auto") +
-  tmap::tm_polygons(
-    fill = "HPI",
-    fill.scale = tmap::tm_scale(value.na = "yellow"),
-    fill.legend = tmap::tm_legend(
-        position = tmap::tm_pos_in("left", "center")
-      ) 
-  ) 
-  
-# tmap::tm_layout(asp = 1.62) 
-
-
-tmap::tmap_options_reset()
-tmap::tmap_options(
-  legend.position = tmap::tm_pos_in(pos.h = "left", pos.v = "center"),
-  "value.na" = list(fill = "yellow"),
-  "component.autoscale" = FALSE
- )
-lobstr::tree(tmap::tmap_options_diff())
-
-tmap::tmap_options_save("my_style")
-tmap::tmap_style("my_style")
-
-
-World <- tmap::World
-tmap::tm_shape(World) +
-  tmap::tm_crs("auto") +
-  tmap::tm_polygons(
-    fill = "HPI",
-    fill.scale = tm_scale(),
-    fill.legend = tm_legend()
-    )
-
-
-
-# nz_median +
-#   tmap::tm_polygons(
-#     fill = "Median_income", 
-#     fill.scale = tmap::tm_scale_intervals(style = "pretty")
-#     ) 
-#   
-# 
-# nz_int1 <- tmap::tm_shape(nz) + 
-#   tmap::tm_polygons(fill = "Median_income",
-#           fill.scale = tmap::tm_scale_intervals(style = "pretty")) +
-#   tmap::tm_options(component.autoscale = FALSE)
-# 
-# nz_int2 <- tmap::tm_shape(nz) + 
-#   tmap::tm_polygons(fill = "Median_income",
-#           fill.scale = tmap::tm_scale_intervals(style = "equal"))+
-#   tmap::tm_options(component.autoscale = FALSE)
-# 
-# nz_int3 <- tmap::tm_shape(nz) + 
-#   tmap::tm_polygons(fill = "Median_income",
-#           fill.scale = tmap::tm_scale_intervals(style = "quantile")) +
-#   tmap::tm_options(component.autoscale = FALSE)
-# 
-# nz_int4 <- tmap::tm_shape(nz) + 
-#   tmap::tm_polygons(fill = "Median_income",
-#           fill.scale = tmap::tm_scale_intervals(style = "jenks")) +
-#   tmap::tm_options(component.autoscale = FALSE)
-# 
-# nz_int5 <- tmap::tm_shape(nz) + 
-#   tmap::tm_polygons(fill = "Population",
-#           fill.scale = tmap::tm_scale_intervals(style = "log10_pretty")) +
-#   tmap::tm_options(component.autoscale = FALSE)
-# 
-# tmap::tmap_arrange(nz_int1, nz_int2, nz_int3, nz_int4, nz_int5)
-
-
-# # a fancy set of options:
-# tmap::tmap_options(
-#   bg.color = "steelblue",
-#   outer.bg.color = "salmon",
-#   frame.color = "purple3",
-#   frame.lwd = 5,
-#   compass.type = "8star",
-#   legend.bg.color = "gold",
-#   legend.position = tm_pos_in(pos.h = "left", pos.v = "top")
-#  )
-
-
+tmap::tmap_mode("view")
+leaflet_whr_2024
+tmap::tmap_mode("plot")
 ```
+***
+
+The function `tmap::tmap_leaflet(leaflet_whr_2024, show = TRUE)` did not work.
+
 
 ::::
 :::::
 
 
-###### header2
+
+###### Base map WHR 2024
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-code-name-b}
-: Numbered R Code Title (Tidyverse)
+:::::: {#cnj-09-basemap-whr-2024}
+: Interactive map with specified base map
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: text-by
-#| eval: false
+#| label: fig-interactive-with-basemap
+#| message: false
+#| results: hold
+#| fig-cap: "Interactive map with specified base map 'Esri.WorldGrayCanvas'"
 
-1 + 1
+tmap::tmap_mode("view")
+leaflet_whr_2024 + tmap::tm_basemap(server = "Esri.WorldGrayCanvas")
+tmap::tmap_mode("plot")
 ```
+
+***
+
+There are many options to choose a provider for the `server` parameter. Choose one from the [leaflet provider preview](https://leaflet-extras.github.io/leaflet-providers/preview/).
+::::
+:::::
+
+###### Facets 2011 & 2024
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-09-sync-facet}
+: Compare 2011 with 2024 WHR data
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-sync-leaflet-facets
+#| fig-cap: "Compare 2011 with 2024 WHR data of world's countries"
+#| message: false
+#| results: hold
+
+whr_final <- base::readRDS("data/chapter09/whr_final.rds") 
+world_map_countries <- base::readRDS("data/chapter09/world_map_countries.rds") 
+
+
+whr_2011.2024 <- whr_final |> 
+  dplyr::filter(
+    wb_group_name == "World" & (year == 2011 | year == 2024)
+    ) |> 
+  dplyr::select(1,2,6) |> 
+  tidyr::pivot_wider(
+    names_from = year,
+    values_from = ladder_score
+  )
+
+world_whr_2011.2024 <- 
+  dplyr::left_join(
+    whr_2011.2024,
+    world_map_countries,
+    dplyr::join_by(iso3 == iso3)
+  ) |> 
+  sf::st_as_sf()
+
+
+tmap::tmap_mode("view")
+tmap::tm_shape(world_whr_2011.2024) + 
+  tmap::tm_polygons(c("2011", "2024"),
+        palette = "matplotlib.rainbow",
+        fill.legend = tmap::tm_legend(
+        legend.title = c("Score", "Score")
+        ),
+        fill.free = FALSE
+  ) +
+  tmap::tm_facets_vstack(nrow = 1, sync = TRUE)
+tmap::tmap_mode("plot")
+```
+
+***
+
+There are two issues with these facets:
+
+1. The legend for 2024 is called 2011. (Maybe I should change to a neutral scale title? But how?)
+2. Synchronization only works with the lower graphics.
+3. The breaks aren't optimal. For instance Russia has improved considerable from 5.284 in 2011 to 5.945, but you can't see this progress because both values are between 5 to 6. Here I should consider more sensible breaks. 
+
+
 
 ::::
 :::::
+
 
 :::
 
 ::::
 :::::
+
+
+
+
+
 
