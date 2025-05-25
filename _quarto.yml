@@ -39,7 +39,7 @@ format:
     toc-depth: 5
     toc-expand: 4
     toc_float: true
-    code-fold: show
+    code-fold: true
     code-tools: true
     code-link: true
     code-overflow: scroll

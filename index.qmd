@@ -3,7 +3,9 @@
 ::: {.callout-note style="color: blue;"}
 #### This is work in progress
 
-I have finished about 18%. Currently I am working on Chapter 8 (book) resp. Chapter 9 (online version) ([Making maps with R, section layouts](https://r.geocompx.org/adv-map#layouts)).
+I have finished about 28%. Currently I have finished Chapter 8 (book) resp. Chapter 9 (online version) ([Making maps with R, section layouts](https://r.geocompx.org/adv-map#layouts)).
+
+This was the chapter with my main interest in my current research work. I will stop here for the moment and try out all my learning on my own datasets.
 
 :::
 
