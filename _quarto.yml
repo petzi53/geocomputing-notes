@@ -22,6 +22,8 @@ book:
     - 09-making-maps.qmd
   appendices:
     - 96-packages-used.qmd
+    - 97-learn-leaflet.qmd
+#    - 98-leaflet-shiny.qmd
 
 bibliography:
     - references.bib

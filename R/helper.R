@@ -13,6 +13,7 @@
 ##            as CSV snapshots and RDS objects
 ## - my_ls_region: well being ladder score line chart for regions
 ## - my_pkgs_dl: Get number of downloads from RStudio CRAN Mirror
+## - my_as_tibble_sf: Convert sf class to sf and tbl_df / tbl class
 
 ## glossary #####################################################
 library(glossary)
@@ -335,6 +336,25 @@ my_pkgs_dl <-  function(pkgs, period = "last-week", days = 7) {
     )
 }
 
+
+##### my_as_tibble_sf ###########################################
+# my_as_tibble_sf: Add `"tbl_df" "tbl"` to `"sf" "data.frame"`
+# Purpose:
+# Provide tibble functionality to sf class
+# Author: Peter Baumgartner
+# df = data.frame to convert
+
+my_as_tibble_sf <- function(df) {
+
+  sf_class <- class(df)
+  if (sf_class[1] == "sf" & sf_class[2] == "data.frame") {
+      df <- tibble::as_tibble(df) |>
+        sf::st_as_sf()
+
+  } else {
+    return("failed")
+  }
+}
 
 ## END
 

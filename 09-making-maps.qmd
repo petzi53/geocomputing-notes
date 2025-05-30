@@ -2178,7 +2178,7 @@ as it is shown in the next tab.
 ```{r}
 #| label: fig-specific-provider
 #| fig-cap: "Interactive map with specified base map 'Esri.WorldTopoMap'"
-#| cache-rebuild: true
+
 
 leaflet_whr_2024 + tmap::tm_basemap(server = "USGS.USTopo")
 ```
@@ -2573,6 +2573,11 @@ leaflet::leaflet(data = spData::cycle_hire) |>
 ::::
 :::::
 
+::: {.callout-note}
+###### See my section to learn how to use {leaflet} in @sec-annex-leaflet
+:::
+
+
 ## Mapping Applications
 
 ### Limatation of interactivity
@@ -2654,7 +2659,17 @@ I think it pays the effort to study this possibility because it would a huge adv
 
 :::
 
-There are several hints about the details of the demonstration in @cnj-09-shiny-demo in the Geocomputing book which could helpful to learn how to integrate interactive maps with {**leaflet**} into {**shiny**}. I will skip it here and will come back to it later in another book related to my `r glossary("WHR")` (and other) current datasets I want to evaluate and interpret.
+::: {.callout-note}
+###### Learning {leaflet} combined with {shiny}
+
+There are several hints about the details of the demonstration in @cnj-09-shiny-demo in the Geocomputing book which could helpful to learn how to integrate interactive maps with {**leaflet**} into {**shiny**}. I will skip these parts here at the moment. Perhaps I will come back to it later in another trial or occasion to interpret my datasets.
+
+:::
+
+
+
+
+
 
 ## Other mapping packages
 
