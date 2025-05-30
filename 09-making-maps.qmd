@@ -2598,7 +2598,7 @@ Overcoming these limitations involves going beyond static web mapping and toward
 
 The bad news is that such server-side solutions require much skilled developer time to set up and maintain, often involving teams of people with roles such as a dedicated geospatial database administrator (DBA).
 
-### {shiny}
+### {shiny} {#sec-09-shiny}
 
 Fortunately for R programmers, web mapping applications can now be rapidly created with {**shiny**} [@shiny]. As described in the open source book [Mastering Shiny](https://mastering-shiny.org/) [@wickham2021] and in the [shiny documentation](https://shiny.posit.co/), {**shiny**} is an R package and framework for converting R code into interactive web applications. You can embed interactive maps in {**shiny**} apps thanks to functions such as `leaflet::renderLeaflet()`.
 
@@ -2644,7 +2644,7 @@ This minimum example does not work. Rendering just the code chunk inside RStudio
 Knitting the whole Quarto file I got no warning but the message on which port shiny is listening with an empty grey rectangle.
 
 
-::: {.callout-note}
+::: {.callout-note #nte-09-serverless-shiny}
 ###### Deploying a serverless Shiny application for R within Quarto
 
 I assumed for the problem above that it is not possible to include a Shiny application inside a Quarto document without a shiny server. But I came across the GitHub repository [Creating an R Shinylive App inside a Quarto Document](https://github.com/coatless-quarto/r-shinylive-demo/) featuring a tutorial for a [R-shinylive app in Quarto](https://quarto.thecoatlessprofessor.com/r-shinylive-demo/) followed up by another [serverless demonstration of a shiny app dashboard](https://github.com/coatless-dashboard/r-shinylive-dashboard-app).

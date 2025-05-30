@@ -1437,43 +1437,25 @@ l  |>
 ::::
 :::::
 
-### Case Study: WHR Example
+## Case Study: WHR Example
 
 In this section I want to apply my new knowledge about layers. My practice example are the WHR data of several years. My aim is to show the distribution of the happiness scores for each year with maps of different providers.
 
 I will start with the comparison of two datasets: The first year of WHR data (2011) and the last available year (2024). 
 
-#### Prepare data
+### Prepare data
 
 My first step is to prepare the data.
 
-
-
-::: {.my-code-collection}
-:::: {.my-code-collection-header}
-::::: {.my-code-collection-icon}
-:::::
-:::::: {#exm-ID}
-: Title for code collection
-::::::
-
-::::
-
-::::{.my-code-collection-container}
-
-::: {.panel-tabset}
-
-###### header1
-
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-code-name-a}
-: Numbered R Code Title (Original)
+:::::: {#cnj-annex-leaflet-prepare-data}
+: Prepare data
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: text-a5
+#| label: prepare-data
 
 whr_final <- base::readRDS("data/chapter09/whr_final.rds")
 world_map_countries <-  base::readRDS("data/chapter09/world_map_countries.rds")
@@ -1499,38 +1481,14 @@ whr_map_final <-
   
 
 skimr::skim(whr_map_final)
-
 ```
 
 ::::
 :::::
 
 
-###### header2
 
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-code-name-b}
-: Numbered R Code Title (Tidyverse)
-::::::
-:::
-::::{.my-r-code-container}
-```{r}
-#| label: text-b5
-
-1 + 1
-```
-
-::::
-:::::
-
-:::
-
-::::
-:::::
-
-
-#### Compare years
+### Compare years
 
 The first difficulty I have to meet is to get radio buttons for the data of different years. I solved this issue by setting a fixed provider and using the `baseGroup` arguments for the data of the different years.
 
@@ -1608,17 +1566,17 @@ map_whr
 :::::
 
 
-#### Add custom info
+### Add custom info
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-ID-text}
-: Numbered R Code Title
+:::::: {#cnj-annex-leaflet-add-custom-info-example}
+: Example: Add custom info for WHR data 2011 with 2024
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: code-chunk-name
+#| label: add-custom-info-example
 
 bins_world <- c(1, 2, 3, 4, 5, 6, 7, 8)
 
@@ -1719,4 +1677,4 @@ I need to simplify the redundant code by using different functions. This would e
 Another issue would be the long legend and the clumsy control by moving the cursor to the legend to choose the desired year and then moving back to map to see the details of the desired country. This destroy in some way a direct comparison of the different colors & values of the specified country.
 
 
-A complete different approach that comes to my mind is using interactive control via {**shiny**}. (See my [shiny section](https://bookdown.org/pbaumgartner/geocomputing-notes/09-making-maps.html#shiny).)
+A complete different approach that comes to my mind is using interactive control via {**shiny**}. See @sec-09-shiny especially my comments to a serverless {**shiny**} app in @nte-09-serverless-shiny.
